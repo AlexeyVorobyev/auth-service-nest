@@ -1,18 +1,27 @@
-import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
+import {
+	BadRequestException,
+	CanActivate,
+	ExecutionContext,
+	ForbiddenException,
+	Inject,
+	Injectable
+} from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { REQUEST_ROLES_KEY, REQUEST_USER_KEY } from '../../common/constants'
-import { ERole } from '../../common/enums/role.enum'
-import { ActiveUserData } from '../../common/interfaces/active-user-data.interface'
+import { FORBIDDEN_ERROR_MESSAGE, REQUEST_ROLES_KEY, REQUEST_USER_KEY } from '../../common/constant'
+import { ERole } from '../../common/enum/role.enum'
+import { IActiveUserData } from '../../common/interface/active-user-data.interface'
 import { Repository } from 'typeorm'
 import { UserEntity } from '../../user/entity/user.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { UserService } from '../../user/user.service'
+import { Builder } from 'builder-pattern'
+import { UniversalError } from '../../common/class/universal-error'
+import { EExceptions } from '../../common/enum/exceptions'
 
 @Injectable()
 export class RoleGuard implements CanActivate {
 	constructor(
 		private reflector: Reflector,
-		private readonly userService: UserService
 	) {
 	}
 
@@ -26,15 +35,19 @@ export class RoleGuard implements CanActivate {
 		}
 
 		const request = context.switchToHttp().getRequest()
-		const userRequestData: ActiveUserData | undefined = request[REQUEST_USER_KEY]
-		const userInstance = await this.userService.findById(userRequestData.id)
+		const userRequestData: IActiveUserData | undefined = request[REQUEST_USER_KEY]
 
-		if (!userInstance) {
-			throw new BadRequestException('User not found')
+		const result = requiredRoles.some((role) => {
+			return userRequestData.roles?.includes(role)
+		})
+
+		if (!result) {
+			Builder(UniversalError)
+				.messages([FORBIDDEN_ERROR_MESSAGE])
+				.exceptionBaseClass(EExceptions.forbidden)
+				.build().throw()
 		}
 
-		return requiredRoles.some((role) => {
-			return userInstance.roles?.map((roleEntity) => roleEntity.name).includes(role)
-		})
+		return true
 	}
 }

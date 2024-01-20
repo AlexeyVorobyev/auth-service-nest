@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
 import { RoleModule } from './role/role.module'
 import { RoleGuard } from './role/guard/role.guard'
+import { BcryptModule } from './bcrypt/bcrypt.module'
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { RoleGuard } from './role/guard/role.guard'
 		}),
 		DatabaseModule,
 		RoleModule,
+		BcryptModule,
 		UserModule,
 		AuthModule,
 	],

@@ -7,15 +7,15 @@ import {
 	ApiOkResponse, ApiOperation,
 	ApiTags, ApiUnauthorizedResponse
 } from '@nestjs/swagger'
-import { Public } from '../common/decorators/public.decorator'
+import { Public } from '../common/decorator/public.decorator'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { AuthService } from './auth.serivce'
 import { SignInResponseDto } from './dto/sign-in-response.dto'
 import { RefreshDto } from './dto/refresh.dto'
 import { RefreshResponseDto } from './dto/refresh-response.dto'
-import { ActiveUser } from '../common/decorators/active-user.decorator'
-import { BaseHttpExceptionDto } from '../common/dto/BaseHttpException.dto'
+import { ActiveUser } from '../common/decorator/active-user.decorator'
+import { UniversalExceptionDto } from '../common/dto/UniversalException.dto'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,11 +25,11 @@ export class AuthController {
 
 	@ApiConflictResponse({
 		description: 'User already exists',
-		type: BaseHttpExceptionDto
+		type: UniversalExceptionDto
 	})
 	@ApiBadRequestResponse({
 		description: 'Return errors for invalid sign up fields',
-		type: BaseHttpExceptionDto
+		type: UniversalExceptionDto
 	})
 	@ApiCreatedResponse({
 		description: 'User has been successfully signed up'
@@ -45,7 +45,8 @@ export class AuthController {
 	}
 
 	@ApiBadRequestResponse({
-		description: 'Return errors for invalid sign in fields'
+		description: 'Return errors for invalid sign in fields',
+		type: UniversalExceptionDto
 	})
 	@ApiOkResponse({
 		description: 'User has been successfully signed in',
@@ -64,7 +65,7 @@ export class AuthController {
 
 	@ApiBadRequestResponse({
 		description: 'Provided refreshToken are invalid or expired',
-		type: BaseHttpExceptionDto
+		type: UniversalExceptionDto
 	})
 	@ApiOkResponse({
 		description: 'User successfully received new access and refresh token',
@@ -82,7 +83,7 @@ export class AuthController {
 
 	@ApiUnauthorizedResponse({
 		description: 'Provided accessToken are invalid or expired or accessToken not provided',
-		type: BaseHttpExceptionDto
+		type: UniversalExceptionDto
 	})
 	@ApiOkResponse({
 		description: 'User successfully authenticated'

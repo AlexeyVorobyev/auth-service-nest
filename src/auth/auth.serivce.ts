@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { randomUUID } from 'crypto'
 import { Repository } from 'typeorm'
 import jwtConfig from '../common/config/jwt.config'
-import { ActiveUserData } from '../common/interfaces/active-user-data.interface'
-import { BcryptService } from './bcrypt.service'
+import { IActiveUserData } from '../common/interface/active-user-data.interface'
+import { BcryptService } from '../bcrypt/bcrypt.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { UserEntity } from '../user/entity/user.entity'
@@ -14,44 +14,41 @@ import { SignInResponseDto } from './dto/sign-in-response.dto'
 import { Builder } from 'builder-pattern'
 import { RefreshDto } from './dto/refresh.dto'
 import { RefreshResponseDto } from './dto/refresh-response.dto'
-import { PostgreSQLErrorCodeEnum } from '../common/enums/PostgreSQLErrorCode.enum'
+import { PostgreSQLErrorCodeEnum } from '../common/enum/PostgreSQLErrorCode.enum'
 import { RoleEntity } from '../role/entity/role.entity'
-import { DEFAULT_ROLE } from '../common/constants'
+import { DEFAULT_ROLE } from '../common/constant'
 import { RoleService } from '../role/role.service'
+import { UniversalError } from '../common/class/universal-error'
+import { EExceptions } from '../common/enum/exceptions'
+import { UserService } from '../user/user.service'
+import { UserCreateDto } from '../user/dto/user-create.dto'
 
 @Injectable()
 export class AuthService {
 	constructor(
 		@Inject(jwtConfig.KEY)
 		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+		@Inject(BcryptService)
 		private readonly bcryptService: BcryptService,
 		@Inject('JwtAccessService')
 		private readonly jwtAccessService: JwtService,
 		@Inject('JwtRefreshService')
 		private readonly jwtRefreshService: JwtService,
-		@InjectRepository(UserEntity)
-		private readonly userRepository: Repository<UserEntity>,
-		@Inject(RoleService)
-		private readonly roleService : RoleService
+		@Inject(UserService)
+		private readonly userService: UserService
 	) {
 	}
 
 	async signUp(signUpDto: SignUpDto): Promise<void> {
-		const defaultRoleInstance = await this.roleService.findByName(DEFAULT_ROLE)
-
-		if (!defaultRoleInstance) {
-			throw new BadRequestException('Default role not found')
-		}
-
 		try {
-			const userBuilder = Builder(UserEntity)
+			const userCreateDtoBuilder = Builder(UserCreateDto)
 
-			userBuilder
+			userCreateDtoBuilder
 				.email(signUpDto.email)
-				.password(await this.bcryptService.hash(signUpDto.password))
-				.roles([defaultRoleInstance])
+				.password(signUpDto.password)
+				.roles([DEFAULT_ROLE])
 
-			await this.userRepository.save(userBuilder.build())
+			await this.userService.create(userCreateDtoBuilder.build())
 		} catch (error) {
 			if (error.code === PostgreSQLErrorCodeEnum.UniqueViolation) {
 				throw new ConflictException(`User [${signUpDto.email}] already exist`)
@@ -63,13 +60,12 @@ export class AuthService {
 	async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
 		const { email, password } = signInDto
 
-		const user = await this.userRepository.findOne({
-			where: {
-				email
-			}
-		})
+		const user = await this.userService.findOneByProperties({ email: email })
 		if (!user) {
-			throw new BadRequestException('Invalid email')
+			Builder(UniversalError)
+				.messages(['Invalid email'])
+				.exceptionBaseClass(EExceptions.badRequest)
+				.build().throw()
 		}
 
 		const isPasswordMatch = await this.bcryptService.compare(
@@ -77,7 +73,10 @@ export class AuthService {
 			user.password
 		)
 		if (!isPasswordMatch) {
-			throw new BadRequestException('Invalid password')
+			Builder(UniversalError)
+				.messages(['Invalid password'])
+				.exceptionBaseClass(EExceptions.badRequest)
+				.build().throw()
 		}
 
 		const SignInResponseBuilder = Builder(SignInResponseDto)
@@ -93,23 +92,25 @@ export class AuthService {
 
 	async refresh(refreshDto: RefreshDto, userId: string): Promise<RefreshResponseDto> {
 		try {
-			await this.jwtRefreshService.verifyAsync<ActiveUserData>(
+			await this.jwtRefreshService.verifyAsync<IActiveUserData>(
 				refreshDto.refreshToken,
 				{
 					secret: this.jwtConfiguration.refreshSecret
 				}
 			)
 		} catch (error) {
-			throw new BadRequestException(error.message)
+			Builder(UniversalError)
+				.messages([error.message])
+				.exceptionBaseClass(EExceptions.badRequest)
+				.build().throw()
 		}
 
-		const user = await this.userRepository.findOne({
-			where: {
-				id: userId
-			}
-		})
+		const user = await this.userService.findOneByProperties({ id: userId })
 		if (!user) {
-			throw new BadRequestException('Invalid userId')
+			Builder(UniversalError)
+				.messages(['Invalid userId'])
+				.exceptionBaseClass(EExceptions.badRequest)
+				.build().throw()
 		}
 
 		const RefreshResponseBuilder = Builder(RefreshResponseDto)
@@ -132,8 +133,9 @@ export class AuthService {
 			{
 				id: user.id,
 				email: user.email,
-				tokenId
-			} as ActiveUserData
+				tokenId: tokenId,
+				roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name)
+			} as IActiveUserData
 		)
 	}
 
@@ -146,8 +148,9 @@ export class AuthService {
 			{
 				id: user.id,
 				email: user.email,
-				tokenId
-			} as ActiveUserData
+				tokenId: tokenId,
+				roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name)
+			} as IActiveUserData
 		)
 	}
 }

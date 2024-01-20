@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { UserEntity } from '../../user/entity/user.entity'
 
 @Entity({
 	name: 'role'
@@ -10,6 +11,16 @@ export class RoleEntity {
 	@Column({ unique: true })
 	name: string
 
-	@Column({nullable: true})
+	@Column({ nullable: true })
 	description?: string
+
+	@ManyToMany(
+		type => UserEntity,
+		user => user.roles,
+		{
+			onDelete: 'NO ACTION',
+			onUpdate: 'NO ACTION'
+		}
+	)
+	users: UserEntity[]
 }

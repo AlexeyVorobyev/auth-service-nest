@@ -23,8 +23,13 @@ export class UserEntity {
 	password: string
 
 	@ManyToMany(
-		() => RoleEntity,
-		{ onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }
+		type => RoleEntity,
+		role => role.users,
+		{
+			onDelete: 'NO ACTION',
+			onUpdate: 'NO ACTION',
+			eager: true
+		}
 	)
 	@JoinTable({
 		name: 'user_role',

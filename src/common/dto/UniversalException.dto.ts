@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class BaseHttpExceptionDto {
-	@ApiProperty()
-	message: any
+export class UniversalExceptionDto {
+	@ApiProperty({
+		type:[String]
+	})
+	message: string | string[]
 
 	@ApiProperty()
 	error: string

@@ -4,8 +4,11 @@ import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import jwtConfig from '../../common/config/jwt.config'
-import { ActiveUserData } from '../../common/interfaces/active-user-data.interface'
-import { REQUEST_USER_KEY } from '../../common/constants'
+import { IActiveUserData } from '../../common/interface/active-user-data.interface'
+import { REQUEST_USER_KEY } from '../../common/constant'
+import { Builder } from 'builder-pattern'
+import { UniversalError } from '../../common/class/universal-error'
+import { EExceptions } from '../../common/enum/exceptions'
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -30,18 +33,24 @@ export class JwtAuthGuard implements CanActivate {
 		const request = context.switchToHttp().getRequest()
 		const token = this.getToken(request)
 		if (!token) {
-			throw new UnauthorizedException('Authorization token is required')
+			Builder(UniversalError)
+				.messages(['Authorization token is required'])
+				.exceptionBaseClass(EExceptions.unauthorized)
+				.build().throw()
 		}
 
 		try {
-			request[REQUEST_USER_KEY] = await this.jwtAccessService.verifyAsync<ActiveUserData>(
+			request[REQUEST_USER_KEY] = await this.jwtAccessService.verifyAsync<IActiveUserData>(
 				token,
 				{
 					secret: this.jwtConfiguration.accessSecret
 				}
 			)
 		} catch (error) {
-			throw new UnauthorizedException(error.message)
+			Builder(UniversalError)
+				.messages([error.message])
+				.exceptionBaseClass(EExceptions.unauthorized)
+				.build().throw()
 		}
 
 		return true
