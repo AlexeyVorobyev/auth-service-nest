@@ -8,6 +8,7 @@ import { RoleService } from '../role/role.service'
 import { RoleEntity } from '../role/entity/role.entity'
 import { RoleModule } from '../role/role.module'
 import { BcryptModule } from '../bcrypt/bcrypt.module'
+import { UserRepository } from './repository/user.repository'
 
 @Module({
 	imports: [
@@ -16,7 +17,7 @@ import { BcryptModule } from '../bcrypt/bcrypt.module'
 		BcryptModule
 	],
 	controllers: [UserController],
-	providers: [UserService],
-	exports: [UserService]
+	providers: [UserService, UserRepository],
+	exports: [UserService, UserRepository]
 })
 export class UserModule {}

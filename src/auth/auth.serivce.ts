@@ -1,9 +1,7 @@
-import { BadRequestException, ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConflictException, Inject, Injectable } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { InjectRepository } from '@nestjs/typeorm'
 import { randomUUID } from 'crypto'
-import { Repository } from 'typeorm'
 import jwtConfig from '../common/config/jwt.config'
 import { IActiveUserData } from '../common/interface/active-user-data.interface'
 import { BcryptService } from '../bcrypt/bcrypt.service'
@@ -17,11 +15,11 @@ import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { PostgreSQLErrorCodeEnum } from '../common/enum/PostgreSQLErrorCode.enum'
 import { RoleEntity } from '../role/entity/role.entity'
 import { DEFAULT_ROLE } from '../common/constant'
-import { RoleService } from '../role/role.service'
 import { UniversalError } from '../common/class/universal-error'
-import { EExceptions } from '../common/enum/exceptions'
+import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserService } from '../user/user.service'
 import { UserCreateDto } from '../user/dto/user-create.dto'
+import { UserRepository } from '../user/repository/user.repository'
 
 @Injectable()
 export class AuthService {
@@ -35,36 +33,29 @@ export class AuthService {
 		@Inject('JwtRefreshService')
 		private readonly jwtRefreshService: JwtService,
 		@Inject(UserService)
-		private readonly userService: UserService
+		private readonly userService: UserService,
+		@Inject(UserRepository)
+		private readonly userRepository: UserRepository
 	) {
 	}
 
 	async signUp(signUpDto: SignUpDto): Promise<void> {
-		try {
-			const userCreateDtoBuilder = Builder(UserCreateDto)
-
-			userCreateDtoBuilder
-				.email(signUpDto.email)
-				.password(signUpDto.password)
-				.roles([DEFAULT_ROLE])
-
-			await this.userService.create(userCreateDtoBuilder.build())
-		} catch (error) {
-			if (error.code === PostgreSQLErrorCodeEnum.UniqueViolation) {
-				throw new ConflictException(`User [${signUpDto.email}] already exist`)
-			}
-			throw error
-		}
+		const userCreateDtoBuilder = Builder(UserCreateDto)
+		userCreateDtoBuilder
+			.email(signUpDto.email)
+			.password(signUpDto.password)
+			.roles([DEFAULT_ROLE])
+		await this.userService.create(userCreateDtoBuilder.build())
 	}
 
 	async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
 		const { email, password } = signInDto
 
-		const user = await this.userService.findOneByProperties({ email: email })
+		const user = await this.userRepository.getOne({ email: email })
 		if (!user) {
 			Builder(UniversalError)
 				.messages(['Invalid email'])
-				.exceptionBaseClass(EExceptions.badRequest)
+				.exceptionBaseClass(EUniversalExceptionType.badRequest)
 				.build().throw()
 		}
 
@@ -75,18 +66,16 @@ export class AuthService {
 		if (!isPasswordMatch) {
 			Builder(UniversalError)
 				.messages(['Invalid password'])
-				.exceptionBaseClass(EExceptions.badRequest)
+				.exceptionBaseClass(EUniversalExceptionType.badRequest)
 				.build().throw()
 		}
 
 		const SignInResponseBuilder = Builder(SignInResponseDto)
-
 		SignInResponseBuilder
 			.accessToken(await this.generateAccessToken(user))
 			.accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
 			.refreshToken(await this.generateRefreshToken(user))
 			.refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
-
 		return SignInResponseBuilder.build()
 	}
 
@@ -101,26 +90,24 @@ export class AuthService {
 		} catch (error) {
 			Builder(UniversalError)
 				.messages([error.message])
-				.exceptionBaseClass(EExceptions.badRequest)
+				.exceptionBaseClass(EUniversalExceptionType.badRequest)
 				.build().throw()
 		}
 
-		const user = await this.userService.findOneByProperties({ id: userId })
+		const user = await this.userRepository.getOne({ id: userId })
 		if (!user) {
 			Builder(UniversalError)
 				.messages(['Invalid userId'])
-				.exceptionBaseClass(EExceptions.badRequest)
+				.exceptionBaseClass(EUniversalExceptionType.badRequest)
 				.build().throw()
 		}
 
 		const RefreshResponseBuilder = Builder(RefreshResponseDto)
-
 		RefreshResponseBuilder
 			.accessToken(await this.generateAccessToken(user))
 			.accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
 			.refreshToken(await this.generateRefreshToken(user))
 			.refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
-
 		return RefreshResponseBuilder.build()
 	}
 

@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
 import { RoleModule } from './role/role.module'
 import { RoleGuard } from './role/guard/role.guard'
 import { BcryptModule } from './bcrypt/bcrypt.module'
+import { CommandModule } from './command/command.module'
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { BcryptModule } from './bcrypt/bcrypt.module'
 		BcryptModule,
 		UserModule,
 		AuthModule,
+		CommandModule
 	],
 	providers: [
 		{

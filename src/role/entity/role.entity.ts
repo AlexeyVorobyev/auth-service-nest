@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { UserEntity } from '../../user/entity/user.entity'
+import { ERole } from '../../common/enum/role.enum'
 
 @Entity({
 	name: 'role'
@@ -9,7 +10,7 @@ export class RoleEntity {
 	id: string
 
 	@Column({ unique: true })
-	name: string
+	name: ERole
 
 	@Column({ nullable: true })
 	description?: string

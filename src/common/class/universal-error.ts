@@ -1,13 +1,20 @@
-import { IUniversalError } from '../interface/universal-error'
-import { EExceptions } from '../enum/exceptions'
-import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common'
+import { IUniversalError } from '../interface/universal-error.interface'
+import { EUniversalExceptionType } from '../enum/exceptions'
+import {
+	BadGatewayException,
+	BadRequestException,
+	ConflictException,
+	ForbiddenException,
+	UnauthorizedException
+} from '@nestjs/common'
 
 export class UniversalError implements IUniversalError {
-	messages:string[]
-	exceptionBaseClass:EExceptions
+	messages: string[]
+	exceptionBaseClass: EUniversalExceptionType
+
 	constructor(
-		messages:string[],
-		exceptionBaseClass:EExceptions
+		messages: string[],
+		exceptionBaseClass: EUniversalExceptionType
 	) {
 		this.messages = messages
 		this.exceptionBaseClass = exceptionBaseClass
@@ -15,12 +22,16 @@ export class UniversalError implements IUniversalError {
 
 	throw() {
 		switch (this.exceptionBaseClass) {
-			case EExceptions.unauthorized:
+			case EUniversalExceptionType.unauthorized:
 				throw new UnauthorizedException(this.messages)
-			case EExceptions.forbidden:
+			case EUniversalExceptionType.forbidden:
 				throw new ForbiddenException(this.messages)
-			case EExceptions.badRequest:
+			case EUniversalExceptionType.badRequest:
 				throw new BadRequestException(this.messages)
+			case EUniversalExceptionType.badGateway:
+				throw new BadGatewayException(this.messages)
+			case EUniversalExceptionType.conflict:
+				throw new ConflictException(this.messages)
 		}
 	}
 

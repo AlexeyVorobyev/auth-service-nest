@@ -15,7 +15,7 @@ import { SignInResponseDto } from './dto/sign-in-response.dto'
 import { RefreshDto } from './dto/refresh.dto'
 import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { ActiveUser } from '../common/decorator/active-user.decorator'
-import { UniversalExceptionDto } from '../common/dto/UniversalException.dto'
+import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -77,7 +77,10 @@ export class AuthController {
 	})
 	@Public()
 	@Post('refresh')
-	refresh(@Body() refreshDto: RefreshDto, @ActiveUser('id') userId: string): Promise<RefreshResponseDto> {
+	refresh(
+		@ActiveUser('id') userId: string,
+		@Body() refreshDto: RefreshDto
+	): Promise<RefreshResponseDto> {
 		return this.authService.refresh(refreshDto, userId)
 	}
 

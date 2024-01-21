@@ -5,10 +5,10 @@ import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import jwtConfig from '../../common/config/jwt.config'
 import { IActiveUserData } from '../../common/interface/active-user-data.interface'
-import { REQUEST_USER_KEY } from '../../common/constant'
+import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from '../../common/constant'
 import { Builder } from 'builder-pattern'
 import { UniversalError } from '../../common/class/universal-error'
-import { EExceptions } from '../../common/enum/exceptions'
+import { EUniversalExceptionType } from '../../common/enum/exceptions'
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -22,7 +22,7 @@ export class JwtAuthGuard implements CanActivate {
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
 			context.getHandler(),
 			context.getClass()
 		])
@@ -35,7 +35,7 @@ export class JwtAuthGuard implements CanActivate {
 		if (!token) {
 			Builder(UniversalError)
 				.messages(['Authorization token is required'])
-				.exceptionBaseClass(EExceptions.unauthorized)
+				.exceptionBaseClass(EUniversalExceptionType.unauthorized)
 				.build().throw()
 		}
 
@@ -49,7 +49,7 @@ export class JwtAuthGuard implements CanActivate {
 		} catch (error) {
 			Builder(UniversalError)
 				.messages([error.message])
-				.exceptionBaseClass(EExceptions.unauthorized)
+				.exceptionBaseClass(EUniversalExceptionType.unauthorized)
 				.build().throw()
 		}
 

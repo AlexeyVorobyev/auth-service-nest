@@ -16,7 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { UserService } from '../../user/user.service'
 import { Builder } from 'builder-pattern'
 import { UniversalError } from '../../common/class/universal-error'
-import { EExceptions } from '../../common/enum/exceptions'
+import { EUniversalExceptionType } from '../../common/enum/exceptions'
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -44,7 +44,7 @@ export class RoleGuard implements CanActivate {
 		if (!result) {
 			Builder(UniversalError)
 				.messages([FORBIDDEN_ERROR_MESSAGE])
-				.exceptionBaseClass(EExceptions.forbidden)
+				.exceptionBaseClass(EUniversalExceptionType.forbidden)
 				.build().throw()
 		}
 

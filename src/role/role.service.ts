@@ -1,39 +1,14 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { RoleEntity } from './entity/role.entity'
-import { FindOptionsWhere, Repository } from 'typeorm'
+import { Inject, Injectable } from '@nestjs/common'
 import { ERole } from '../common/enum/role.enum'
-import { Builder } from 'builder-pattern'
+import { RoleRepository } from './repository/role.repository'
 
 @Injectable()
-export class RoleService implements OnModuleInit {
-	private rolesList: string[]
+export class RoleService {
 
 	constructor(
-		@InjectRepository(RoleEntity)
-		private readonly roleRepository: Repository<RoleEntity>
+		@Inject(RoleRepository)
+		private readonly roleRepository: RoleRepository
 	) {
-		this.rolesList = Object.values(ERole)
 	}
 
-	async findOneByProperties(properties: FindOptionsWhere<RoleEntity>): Promise<RoleEntity> {
-		return await this.roleRepository.findOne({ where: properties })
-	}
-
-	initBaseRoles(): void {
-		this.rolesList.forEach(async (role: ERole) => {
-			if (await this.findOneByProperties({ name: role })) {
-				return
-			}
-
-			const RoleEntityBuilder = Builder(RoleEntity)
-			RoleEntityBuilder
-				.name(role)
-			await this.roleRepository.save(RoleEntityBuilder.build())
-		})
-	}
-
-	onModuleInit(): void {
-		this.initBaseRoles()
-	}
 }

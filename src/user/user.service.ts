@@ -1,69 +1,107 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { FindOptionsWhere, Repository } from 'typeorm'
 import { UserEntity } from './entity/user.entity'
 import { MeResponseDto } from './dto/me-response.dto'
 import { Builder } from 'builder-pattern'
 import { UniversalError } from '../common/class/universal-error'
-import { EExceptions } from '../common/enum/exceptions'
+import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserCreateDto } from './dto/user-create.dto'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { ERole } from '../common/enum/role.enum'
-import { RoleService } from '../role/role.service'
+import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
+import { UserCreateResponseDto } from './dto/user-create-response.dto'
+import { UserRepository } from './repository/user.repository'
+import { UserGetAllDto } from './dto/user-get-all.dto'
+import { Like } from 'typeorm'
+import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
+import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
+import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
+import { RoleRepository } from '../role/repository/role.repository'
 
 @Injectable()
 export class UserService {
 	constructor(
-		@InjectRepository(UserEntity)
-		private readonly userRepository: Repository<UserEntity>,
+		@Inject(UserRepository)
+		private readonly userRepository: UserRepository,
 		@Inject(BcryptService)
 		private readonly bcryptService: BcryptService,
-		@Inject(RoleService)
-		private readonly roleService: RoleService
+		@Inject(RoleRepository)
+		private readonly roleRepository: RoleRepository
 	) {
 	}
 
-	async findOneByProperties(properties: FindOptionsWhere<UserEntity>): Promise<UserEntity> {
-		return await this.userRepository.findOne({ where: properties })
+	async getAll(params: UserGetAllDto): Promise<UserGetAllResponseDto> {
+		const userEntityInstances = await this.userRepository.getAll(
+			{
+				email: Like(`%${params.simpleFilter}%`)
+			},
+			sortDtoListFindOptionsOrderAdapter<UserEntity>(
+				params.sort,
+				Builder(UserEntity)
+					.id(null)
+					.email(null)
+					.password(null)
+					.createdAt(null)
+					.updatedAt(null)
+					.roles(null)
+					.build()
+			),
+			params.page,
+			params.perPage
+		)
+
+		const totalElements = await this.userRepository.count({
+			email: Like(`%${params.simpleFilter}%`)
+		})
+
+		const userGetAllResponseDtoBuilder = Builder(UserGetAllResponseDto)
+		userGetAllResponseDtoBuilder
+			.list(
+				userEntityInstances
+					.map((userEntityInstance: UserEntity) => userEntityToUserResponseDtoAdapter(userEntityInstance))
+			)
+			.currentPage(params.page)
+			.elementsPerPage(params.perPage)
+			.totalElements(totalElements)
+			.totalPages(Math.ceil(totalElements / params.perPage))
+		return userGetAllResponseDtoBuilder.build()
 	}
 
-	async create(userCreateDto: UserCreateDto): Promise<UserEntity> {
-		const userBuilder = Builder(UserEntity)
+	async getOne(id: string): Promise<MeResponseDto> {
+		const user = await this.userRepository.getOne({ id: id })
+		return userEntityToUserResponseDtoAdapter(user)
+	}
 
-		userBuilder
-			.email(userCreateDto.email)
-			.password(await this.bcryptService.hash(userCreateDto.password))
+	async create(
+		userCreateDto: UserCreateDto,
+		userRoles?: ERole[]
+	): Promise<UserCreateResponseDto> {
+		if (userRoles) {
+			userCreateDto.roles.forEach((role: ERole) => {
+				if (!userRoles.includes(role)) {
+					Builder(UniversalError)
+						.messages([
+							FORBIDDEN_ERROR_MESSAGE,
+							`You cant create user with ${role} role`
+						])
+						.exceptionBaseClass(EUniversalExceptionType.forbidden)
+						.build().throw()
+				}
+			})
+		}
 
 		const roleInstances = await Promise.all(
-			userCreateDto.roles.map(async (role: ERole) => {
-				return await this.roleService.findOneByProperties({ name: role })
+			userCreateDto.roles.map((role: ERole) => {
+				return this.roleRepository.getOne({ name: role })
 			})
 		)
 
-		userBuilder.roles(roleInstances)
+		const userBuilder = Builder(UserEntity)
+		userBuilder
+			.email(userCreateDto.email)
+			.password(await this.bcryptService.hash(userCreateDto.password))
+			.roles(roleInstances)
+		const createdUserEntityInstance = await this.userRepository.saveOne(userBuilder.build())
 
-		return await this.userRepository.save(userBuilder.build())
-	}
-
-	async getMe(userId: string): Promise<MeResponseDto> {
-		const user = await this.userRepository.findOne({
-			where: {
-				id: userId
-			}
-		})
-		if (!user) {
-			Builder(UniversalError)
-				.messages(['User not found'])
-				.exceptionBaseClass(EExceptions.badRequest)
-				.build().throw()
-		}
-
-		const MeResponseDtoBuilder = Builder(MeResponseDto)
-		MeResponseDtoBuilder
-			.id(user.id)
-			.email(user.email)
-			.createdAt(user.createdAt)
-			.updatedAt(user.updatedAt)
-		return MeResponseDtoBuilder.build()
+		return userEntityToUserResponseDtoAdapter(createdUserEntityInstance)
 	}
 }

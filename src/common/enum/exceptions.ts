@@ -1,5 +1,7 @@
-export enum EExceptions {
+export enum EUniversalExceptionType {
 	unauthorized = 'unauthorized',
 	forbidden = 'forbidden',
-	badRequest = 'badRequest'
+	badRequest = 'badRequest',
+	badGateway = 'badGateway',
+	conflict = 'conflict'
 }
