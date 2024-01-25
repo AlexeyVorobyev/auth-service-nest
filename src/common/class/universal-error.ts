@@ -4,7 +4,7 @@ import {
 	BadGatewayException,
 	BadRequestException,
 	ConflictException,
-	ForbiddenException,
+	ForbiddenException, InternalServerErrorException,
 	UnauthorizedException
 } from '@nestjs/common'
 
@@ -32,6 +32,9 @@ export class UniversalError implements IUniversalError {
 				throw new BadGatewayException(this.messages)
 			case EUniversalExceptionType.conflict:
 				throw new ConflictException(this.messages)
+			case EUniversalExceptionType.server:
+			default:
+				throw new InternalServerErrorException(this.messages)
 		}
 	}
 

@@ -7,7 +7,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
-import { RoleEntity } from '../../role/entity/role.entity'
+import { RoleEntity } from '@src/role/entity/role.entity'
 
 @Entity({
 	name: 'user'
@@ -26,8 +26,8 @@ export class UserEntity {
 		type => RoleEntity,
 		role => role.users,
 		{
-			onDelete: 'NO ACTION',
-			onUpdate: 'NO ACTION',
+			onDelete: "CASCADE",
+			onUpdate: "CASCADE",
 			eager: true
 		}
 	)

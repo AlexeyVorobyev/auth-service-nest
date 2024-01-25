@@ -3,5 +3,6 @@ export enum EUniversalExceptionType {
 	forbidden = 'forbidden',
 	badRequest = 'badRequest',
 	badGateway = 'badGateway',
-	conflict = 'conflict'
+	conflict = 'conflict',
+	server = 'server'
 }

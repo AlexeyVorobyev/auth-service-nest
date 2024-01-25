@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
 import {
 	ApiBadRequestResponse,
-	ApiBearerAuth,
+	ApiBearerAuth, ApiCreatedResponse,
 	ApiForbiddenResponse,
 	ApiOkResponse,
 	ApiOperation,
@@ -20,6 +20,9 @@ import { CrudGetAll, ECrudGetAllOption } from '../common/decorator/crud-get-all.
 import { UserGetAllDto } from './dto/user-get-all.dto'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { IdParamDto } from '../common/dto/id-param.dto'
+import { UserResponseDto } from '@src/user/dto/user-response.dto'
+import { UserUpdateDto } from '@src/user/dto/user-update.dto'
+import { UpdateResult } from 'typeorm'
 
 
 @ApiTags('user')
@@ -39,7 +42,7 @@ export class UserController {
 		type: MeResponseDto
 	})
 	@ApiOperation({
-		summary: 'User information endpoint',
+		summary: 'Current user information endpoint.',
 		description: 'Provides user information.'
 	})
 	@ApiBearerAuth()
@@ -85,7 +88,7 @@ export class UserController {
 		description: 'Forbidden',
 		type: UniversalExceptionDto
 	})
-	@ApiOkResponse({
+	@ApiCreatedResponse({
 		description: 'Created user data',
 		type: UserCreateResponseDto
 	})
@@ -117,16 +120,64 @@ export class UserController {
 	})
 	@ApiOkResponse({
 		description: 'User information',
-		type: UserGetAllResponseDto,
+		type: UserGetAllResponseDto
 	})
 	@ApiOperation({
 		summary: 'User information endpoint',
-		description: 'Provides functionality of getting information about user.'
+		description: 'Provides functionality of getting information about user by id.'
 	})
 	@ApiBearerAuth()
 	@Roles(ERole.Moderator, ERole.Admin)
 	@Get(':id')
-	async getOne(@Param() params: IdParamDto) {
+	async getOne(@Param() params: IdParamDto): Promise<UserResponseDto> {
 		return this.usersService.getOne(params.id)
+	}
+
+	@ApiUnauthorizedResponse({
+		description: 'Unauthorized',
+		type: UniversalExceptionDto
+	})
+	@ApiForbiddenResponse({
+		description: 'Forbidden',
+		type: UniversalExceptionDto
+	})
+	@ApiOkResponse({
+		description: 'User successfully updated'
+	})
+	@ApiOperation({
+		summary: 'User information update endpoint',
+		description: 'Provides functionality of editing user by id.'
+	})
+	@ApiBearerAuth()
+	@Roles(ERole.Moderator, ERole.Admin)
+	@Patch(':id')
+	async update(
+		@ActiveUser('roles') userRoles: ERole[],
+		@Param() params: IdParamDto,
+		@Body() userUpdateDto: UserUpdateDto
+	) : Promise<void> {
+		await this.usersService.update(params.id, userUpdateDto, userRoles)
+	}
+
+	@ApiUnauthorizedResponse({
+		description: 'Unauthorized',
+		type: UniversalExceptionDto
+	})
+	@ApiForbiddenResponse({
+		description: 'Forbidden',
+		type: UniversalExceptionDto
+	})
+	@ApiOkResponse({
+		description: 'User with provided id deleted'
+	})
+	@ApiOperation({
+		summary: 'User deletion endpoint',
+		description: 'Provides functionality of deleting user by id.'
+	})
+	@ApiBearerAuth()
+	@Roles(ERole.Admin)
+	@Delete(':id')
+	async delete(@Param() params: IdParamDto): Promise<void> {
+		await this.usersService.delete(params.id)
 	}
 }

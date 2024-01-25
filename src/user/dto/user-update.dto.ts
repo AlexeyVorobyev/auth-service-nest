@@ -1,15 +1,16 @@
 import { ERole } from '@src/common/enum/role.enum'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsEmail, IsNotEmpty, Matches, MaxLength, MinLength } from 'class-validator'
+import { ApiProperty, PartialType } from '@nestjs/swagger'
+import { IsArray, IsEmail, IsNotEmpty, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { UserCreateDto } from '@src/user/dto/user-create.dto'
 
-export class UserCreateDto {
+export class UserUpdateDto {
 	@ApiProperty({
 		description: 'Email of user',
 		example: 'atest@email.com'
 	})
 	@IsEmail()
-	@IsNotEmpty()
-	email: string
+	@IsOptional()
+	email?: string
 
 	@ApiProperty({
 		description: 'Password of user',
@@ -24,8 +25,8 @@ export class UserCreateDto {
 	@Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
 		message: 'password too weak'
 	})
-	@IsNotEmpty()
-	password: string
+	@IsOptional()
+	password?: string
 
 	@ApiProperty({
 		description: 'Roles of user',
@@ -34,5 +35,6 @@ export class UserCreateDto {
 		enum: ERole
 	})
 	@IsArray()
-	roles: ERole[]
+	@IsOptional()
+	roles?: ERole[]
 }
