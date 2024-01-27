@@ -97,10 +97,9 @@ export class UserService {
 		userCreateDto: UserCreateDto,
 		userRoles?: ERole[]
 	): Promise<UserCreateResponseDto> {
-		const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
-
-		const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
 		if (userRoles) {
+			const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
+			const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
 			userCreateDto.roles.forEach((role: ERole) => {
 				if (!allowedRolesAssertion.includes(role)) {
 					Builder(UniversalError)
@@ -132,7 +131,7 @@ export class UserService {
 	async update(
 		id: string,
 		userUpdateDto: UserUpdateDto,
-		userRoles?: ERole[]
+		userRoles: ERole[]
 	) {
 		const userToUpdate = await this.userRepository.getOne({ id: id })
 		const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator

@@ -23,6 +23,8 @@
       "@shared/*": ["./src/module/shared/*"],
       "@src/*": ["./src/*"],
       "@env/*": ["./env/*"]
-    }
+    },
+    "jsx": "react-jsx",
+    "tsx": "react-tsx"
   }
 }

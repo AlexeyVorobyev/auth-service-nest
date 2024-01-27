@@ -15,12 +15,13 @@ import { RoleGuard } from './role/guard/role.guard'
 import { BcryptModule } from './bcrypt/bcrypt.module'
 import { CommandModule } from './command/command.module'
 import { EmailModule } from '@src/email/email.module'
+import emailConfig from '@src/common/config/email.config'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			load: [appConfig, databaseConfig, swaggerConfig, JwtConfig],
+			load: [appConfig, databaseConfig, swaggerConfig, JwtConfig, emailConfig],
 			validate
 		}),
 		DatabaseModule,

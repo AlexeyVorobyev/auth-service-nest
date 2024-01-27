@@ -11,6 +11,7 @@ import { RoleModule } from '../role/role.module'
 import { UserService } from '../user/user.service'
 import { UserModule } from '../user/user.module'
 import { BcryptModule } from '../bcrypt/bcrypt.module'
+import { EmailModule } from '@src/email/email.module'
 
 @Module({
 	imports: [
@@ -19,7 +20,8 @@ import { BcryptModule } from '../bcrypt/bcrypt.module'
 		JwtRefreshModule,
 		RoleModule,
 		UserModule,
-		BcryptModule
+		BcryptModule,
+		EmailModule
 	],
 	controllers: [AuthController],
 	providers: [AuthService],

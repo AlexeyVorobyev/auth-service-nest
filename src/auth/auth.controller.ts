@@ -84,6 +84,24 @@ export class AuthController {
 		return this.authService.refresh(refreshDto, userId)
 	}
 
+	@ApiOkResponse({
+		description: 'User successfully received confirmation email',
+		type: RefreshResponseDto
+	})
+	@ApiOperation({
+		summary:'Resend confirmation email endpoint',
+		description:'Allows to send confirmation email to current user.'
+	})
+	@ApiUnauthorizedResponse({
+		description: 'Provided accessToken are invalid or expired or accessToken not provided',
+		type: UniversalExceptionDto
+	})
+	@ApiBearerAuth()
+	@Post('resend-confirmation-email')
+	async resendConfirmationMail(@ActiveUser('id') userId: string) {
+		await this.authService.resendConfirmationMail(userId)
+	}
+
 	@ApiUnauthorizedResponse({
 		description: 'Provided accessToken are invalid or expired or accessToken not provided',
 		type: UniversalExceptionDto

@@ -61,6 +61,20 @@ class EnvironmentVariables {
 
 	@IsString()
 	SWAGGER_SERVER_PREFIX: string
+
+	@IsString()
+	EMAIL_HOST_ADDRESS: string
+
+	@IsNumber()
+	EMAIL_HOST_PORT: number
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_USER: string
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_USER_PASSWORD: string
 }
 
 export function validate(config: Record<string, unknown>) {

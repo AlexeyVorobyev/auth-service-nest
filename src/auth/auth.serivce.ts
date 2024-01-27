@@ -20,6 +20,7 @@ import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserService } from '../user/user.service'
 import { UserCreateDto } from '../user/dto/user-create.dto'
 import { UserRepository } from '../user/repository/user.repository'
+import { EmailService } from '@src/email/email.service'
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,9 @@ export class AuthService {
 		@Inject(UserService)
 		private readonly userService: UserService,
 		@Inject(UserRepository)
-		private readonly userRepository: UserRepository
+		private readonly userRepository: UserRepository,
+		@Inject(EmailService)
+		private readonly emailService: EmailService
 	) {
 	}
 
@@ -140,5 +143,10 @@ export class AuthService {
 				roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name)
 			} as IActiveUserData
 		)
+	}
+
+	async resendConfirmationMail(userId: string) {
+		const user = await this.userRepository.getOne({ id: userId })
+		await this.emailService.sendUserConfirmation(user)
 	}
 }
