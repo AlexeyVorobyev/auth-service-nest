@@ -17,6 +17,7 @@ import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-use
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { RoleRepository } from '../role/repository/role.repository'
 import { UserUpdateDto } from '@src/user/dto/user-update.dto'
+import { UserUpdateMeDto } from '@src/user/dto/user-update-me.dto'
 
 @Injectable()
 export class UserService {
@@ -72,9 +73,12 @@ export class UserService {
 		userCreateDto: UserCreateDto,
 		userRoles?: ERole[]
 	): Promise<UserCreateResponseDto> {
+		const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
+
+		const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
 		if (userRoles) {
 			userCreateDto.roles.forEach((role: ERole) => {
-				if (!userRoles.includes(role)) {
+				if (!allowedRolesAssertion.includes(role)) {
 					Builder(UniversalError)
 						.messages([
 							FORBIDDEN_ERROR_MESSAGE,
@@ -85,7 +89,6 @@ export class UserService {
 				}
 			})
 		}
-
 		const roleInstances = await Promise.all(
 			userCreateDto.roles.map((role: ERole) => {
 				return this.roleRepository.getOne({ name: role })
@@ -107,27 +110,54 @@ export class UserService {
 		userUpdateDto: UserUpdateDto,
 		userRoles?: ERole[]
 	) {
-		if (userRoles && userUpdateDto.roles) {
-			userUpdateDto.roles.forEach((role: ERole) => {
-				if (!userRoles.includes(role)) {
-					Builder(UniversalError)
-						.messages([
-							FORBIDDEN_ERROR_MESSAGE,
-							`You cant assign to user ${role} role`
-						])
-						.exceptionBaseClass(EUniversalExceptionType.forbidden)
-						.build().throw()
-				}
-			})
+		const userToUpdate = await this.userRepository.getOne({ id: id })
+		const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
+
+		if (activeUserHighRole === ERole.Admin) {
+			if (userToUpdate.roles.map((role) => role.name).includes(ERole.Admin)) {
+				Builder(UniversalError)
+					.messages([
+						FORBIDDEN_ERROR_MESSAGE,
+						'You cant update other admins'
+					])
+					.exceptionBaseClass(EUniversalExceptionType.forbidden)
+					.build().throw()
+			}
+		}
+		if (activeUserHighRole === ERole.Moderator) {
+			if (
+				userToUpdate.roles.map((role) => role.name).includes(ERole.Admin)
+				|| userToUpdate.roles.map((role) => role.name).includes(ERole.Moderator)
+			) {
+				Builder(UniversalError)
+					.messages([
+						FORBIDDEN_ERROR_MESSAGE,
+						'You cant update other admins or moderators'
+					])
+					.exceptionBaseClass(EUniversalExceptionType.forbidden)
+					.build().throw()
+			}
 		}
 
+		const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
+		userToUpdate.roles.forEach((role) => {
+			if (!allowedRolesAssertion.includes(role.name)) {
+				Builder(UniversalError)
+					.messages([
+						FORBIDDEN_ERROR_MESSAGE,
+						`You cant assign to user ${role.name} role`
+					])
+					.exceptionBaseClass(EUniversalExceptionType.forbidden)
+					.build().throw()
+			}
+		})
 		const roleInstances = userUpdateDto.roles ? await Promise.all(
 			userUpdateDto.roles.map((role: ERole) => {
 				return this.roleRepository.getOne({ name: role })
 			})
 		) : undefined
 
-		return await this.userRepository.update(
+		await this.userRepository.update(
 			{ id: id },
 			Builder(UserEntity)
 				.email(userUpdateDto?.email || undefined)
@@ -138,6 +168,27 @@ export class UserService {
 	}
 
 	async delete(id: string) {
-		await this.userRepository.delete({ id: id })
+		const userToDelete = await this.userRepository.getOne({ id: id })
+		if (userToDelete.roles.map((role) => role.name).includes(ERole.Admin)) {
+			Builder(UniversalError)
+				.messages([
+					FORBIDDEN_ERROR_MESSAGE,
+					'You cant delete other admins'
+				])
+				.exceptionBaseClass(EUniversalExceptionType.forbidden)
+				.build().throw()
+		} else {
+			await this.userRepository.delete({ id: id })
+		}
+	}
+
+	async updateMe(id:string, userUpdateMeDto: UserUpdateMeDto) {
+		await this.userRepository.update(
+			{id : id},
+			Builder(UserEntity)
+				.email(userUpdateMeDto?.email || undefined)
+				.password(userUpdateMeDto?.password ? await this.bcryptService.hash(userUpdateMeDto.password) : undefined)
+				.build()
+		)
 	}
 }

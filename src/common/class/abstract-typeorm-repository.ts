@@ -83,7 +83,7 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 			if (error.code === EPostgreSQLErrorCode.foreignKeyViolation) {
 				Builder(UniversalError)
 					.messages([
-						`Command violates Foreign key reference`,
+						`Command violates foreign key reference`,
 						error?.detail
 					])
 					.exceptionBaseClass(EUniversalExceptionType.conflict)

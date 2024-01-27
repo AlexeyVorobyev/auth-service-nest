@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import {
 	ApiBadRequestResponse,
-	ApiBearerAuth, ApiCreatedResponse,
+	ApiBearerAuth, ApiConflictResponse,
+	ApiCreatedResponse,
 	ApiForbiddenResponse,
 	ApiOkResponse,
 	ApiOperation,
@@ -22,7 +23,7 @@ import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { IdParamDto } from '../common/dto/id-param.dto'
 import { UserResponseDto } from '@src/user/dto/user-response.dto'
 import { UserUpdateDto } from '@src/user/dto/user-update.dto'
-import { UpdateResult } from 'typeorm'
+import { UserUpdateMeDto } from '@src/user/dto/user-update-me.dto'
 
 
 @ApiTags('user')
@@ -42,7 +43,7 @@ export class UserController {
 		type: MeResponseDto
 	})
 	@ApiOperation({
-		summary: 'Current user information endpoint.',
+		summary: 'Current user information endpoint',
 		description: 'Provides user information.'
 	})
 	@ApiBearerAuth()
@@ -50,6 +51,35 @@ export class UserController {
 	@Get('me')
 	async getMe(@ActiveUser('id') userId: string): Promise<MeResponseDto> {
 		return this.usersService.getOne(userId)
+	}
+
+	@ApiUnauthorizedResponse({
+		description: 'Unauthorized',
+		type: UniversalExceptionDto
+	})
+	@ApiForbiddenResponse({
+		description: 'Forbidden',
+		type: UniversalExceptionDto
+	})
+	@ApiConflictResponse({
+		description: 'User with provided parameters exist in system',
+		type: UniversalExceptionDto
+	})
+	@ApiOkResponse({
+		description: 'Current user successfully updated'
+	})
+	@ApiOperation({
+		summary: 'Current user information update endpoint',
+		description: 'Provides functionality of editing current user.'
+	})
+	@ApiBearerAuth()
+	@Roles(ERole.Moderator, ERole.Admin)
+	@Patch('me')
+	async updateMe(
+		@ActiveUser('id') userId: string,
+		@Body() userUpdateMeDto: UserUpdateMeDto
+	): Promise<void> {
+		await this.usersService.updateMe(userId, userUpdateMeDto)
 	}
 
 	@ApiUnauthorizedResponse({
@@ -86,6 +116,10 @@ export class UserController {
 	})
 	@ApiForbiddenResponse({
 		description: 'Forbidden',
+		type: UniversalExceptionDto
+	})
+	@ApiConflictResponse({
+		description: 'User with provided parameters exist in system',
 		type: UniversalExceptionDto
 	})
 	@ApiCreatedResponse({
@@ -141,6 +175,10 @@ export class UserController {
 		description: 'Forbidden',
 		type: UniversalExceptionDto
 	})
+	@ApiConflictResponse({
+		description: 'User with provided parameters exist in system',
+		type: UniversalExceptionDto
+	})
 	@ApiOkResponse({
 		description: 'User successfully updated'
 	})
@@ -155,7 +193,7 @@ export class UserController {
 		@ActiveUser('roles') userRoles: ERole[],
 		@Param() params: IdParamDto,
 		@Body() userUpdateDto: UserUpdateDto
-	) : Promise<void> {
+	): Promise<void> {
 		await this.usersService.update(params.id, userUpdateDto, userRoles)
 	}
 

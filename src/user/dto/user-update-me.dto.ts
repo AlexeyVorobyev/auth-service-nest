@@ -1,8 +1,7 @@
-import { ERole } from '@src/common/enum/role.enum'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsEmail, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { IsEmail, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
 
-export class UserUpdateDto {
+export class UserUpdateMeDto {
 	@ApiProperty({
 		description: 'Email of user',
 		example: 'atest@email.com'
@@ -26,14 +25,4 @@ export class UserUpdateDto {
 	})
 	@IsOptional()
 	password?: string
-
-	@ApiProperty({
-		description: 'Roles of user',
-		example: [ERole.User],
-		type: [String],
-		enum: ERole
-	})
-	@IsArray()
-	@IsOptional()
-	roles?: ERole[]
 }
