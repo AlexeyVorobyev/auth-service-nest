@@ -1,5 +1,12 @@
 import { IRepository } from '../interface/repository.interface'
-import { FindOptionsOrder, FindOptionsWhere, QueryFailedError, Repository, UpdateResult } from 'typeorm'
+import {
+	FindOptionsOrder,
+	FindOptionsRelations,
+	FindOptionsWhere,
+	QueryFailedError,
+	Repository,
+	UpdateResult
+} from 'typeorm'
 import { instanceToPlain } from 'class-transformer'
 import { Builder } from 'builder-pattern'
 import { UniversalError } from './universal-error'
@@ -12,12 +19,20 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 	) {
 	}
 
-	async getAll(filter?: FindOptionsWhere<Entity>, order?: FindOptionsOrder<Entity>, page?: number, perPage?: number): Promise<Entity[]> {
+	async getAll(
+		filter?: FindOptionsWhere<Entity>,
+		order?: FindOptionsOrder<Entity>,
+		page?: number,
+		perPage?: number,
+		relations?: FindOptionsRelations<Entity>
+	): Promise<Entity[]> {
 		return await this.typeormRepository.find({
 			where: filter || undefined,
 			order: order || undefined,
 			skip: page * perPage || undefined,
-			take: perPage || undefined
+			take: perPage || undefined,
+			relationLoadStrategy: 'query',
+			relations: relations
 		})
 	}
 
@@ -69,7 +84,10 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 		return await this.typeormRepository.save(entities)
 	}
 
-	async update(filter: FindOptionsWhere<Entity>, entity: Partial<Entity>): Promise<void> {
+	async update(
+		filter: FindOptionsWhere<Entity>,
+		entity: Partial<Entity>
+	): Promise<void> {
 		await this.getOne(filter)
 		await this.typeormRepository.update(filter, instanceToPlain(entity))
 	}

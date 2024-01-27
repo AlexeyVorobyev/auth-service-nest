@@ -11,7 +11,7 @@ import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
 import { UserRepository } from './repository/user.repository'
 import { UserGetAllDto } from './dto/user-get-all.dto'
-import { Like } from 'typeorm'
+import { FindOperator, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
 import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
@@ -34,7 +34,10 @@ export class UserService {
 	async getAll(params: UserGetAllDto): Promise<UserGetAllResponseDto> {
 		const userEntityInstances = await this.userRepository.getAll(
 			{
-				email: Like(`%${params.simpleFilter}%`)
+				email: Like(`%${params.simpleFilter}%`),
+				roles: {
+					name: params.roleFilter
+				}
 			},
 			sortDtoListFindOptionsOrderAdapter<UserEntity>(
 				params.sort,
@@ -44,11 +47,15 @@ export class UserService {
 					.build()
 			),
 			params.page,
-			params.perPage
+			params.perPage,
+			{ roles:true }
 		)
 
 		const totalElements = await this.userRepository.count({
-			email: Like(`%${params.simpleFilter}%`)
+			email: Like(`%${params.simpleFilter}%`),
+			roles: {
+				name: Like(`%${params.roleFilter}%`) as FindOperator<ERole>
+			}
 		})
 
 		const userGetAllResponseDtoBuilder = Builder(UserGetAllResponseDto)

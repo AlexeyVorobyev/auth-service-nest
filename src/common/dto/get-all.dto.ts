@@ -1,22 +1,47 @@
 import { IsOptional, IsPositive, IsString, Min, ValidateNested } from 'class-validator'
 import { plainToClass, Transform, Type } from 'class-transformer'
-import { SortDto } from './sort.dto'
+import { ApiProperty } from '@nestjs/swagger'
+import { ESortDirection } from '@src/common/enum/ESortDirection.enum'
+import { SortDto } from '@src/common/dto/sort.dto'
 
 export abstract class GetAllDto {
+	@ApiProperty({
+		default: 0,
+		required: false,
+		type: Number
+	})
 	@Type(() => Number)
-	@IsOptional()
 	@Min(0)
+	@IsOptional()
 	page?: number = 0
 
+	@ApiProperty({
+		default: 5,
+		required: false,
+		type: Number
+	})
 	@Type(() => Number)
-	@IsOptional()
 	@IsPositive()
+	@IsOptional()
 	perPage?: number = 8
 
+	@ApiProperty({
+		default: '',
+		required: false,
+		type: String,
+	})
 	@IsString()
 	@Type(() => String)
+	@IsOptional()
 	simpleFilter?: string = ""
 
+	@ApiProperty({
+		required: false,
+		type: String,
+		isArray: true,
+		description: 'Sorting criteria in the format: property,(ASC|DESC). Multiple sort criteria is supported',
+		example: [`title,${ESortDirection.ascending}`, `subtitle,${ESortDirection.descending}`],
+	})
 	@IsOptional()
 	@ValidateNested()
 	@Transform((transformPayload) => {

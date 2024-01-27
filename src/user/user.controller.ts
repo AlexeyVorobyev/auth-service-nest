@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import {
 	ApiBadRequestResponse,
-	ApiBearerAuth, ApiConflictResponse,
+	ApiBearerAuth,
+	ApiConflictResponse,
 	ApiCreatedResponse,
 	ApiForbiddenResponse,
 	ApiOkResponse,
@@ -17,7 +18,6 @@ import { Roles } from '../common/decorator/roles.decorator'
 import { ERole } from '../common/enum/role.enum'
 import { UserCreateDto } from './dto/user-create.dto'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
-import { CrudGetAll, ECrudGetAllOption } from '../common/decorator/crud-get-all.decorator'
 import { UserGetAllDto } from './dto/user-get-all.dto'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { IdParamDto } from '../common/dto/id-param.dto'
@@ -98,11 +98,6 @@ export class UserController {
 		summary: 'Users list endpoint',
 		description: 'Provides functionality of getting list of users.'
 	})
-	@CrudGetAll(
-		ECrudGetAllOption.pagination,
-		ECrudGetAllOption.simpleFilter,
-		ECrudGetAllOption.sort
-	)
 	@ApiBearerAuth()
 	@Roles(ERole.Moderator, ERole.Admin)
 	@Get()

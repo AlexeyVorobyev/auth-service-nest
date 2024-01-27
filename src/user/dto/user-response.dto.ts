@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ERole } from '../../common/enum/role.enum'
+import { ERole } from '@src/common/enum/role.enum'
 
 export class UserResponseDto {
 	@ApiProperty({
