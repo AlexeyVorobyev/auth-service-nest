@@ -14,6 +14,7 @@ import { RoleModule } from './role/role.module'
 import { RoleGuard } from './role/guard/role.guard'
 import { BcryptModule } from './bcrypt/bcrypt.module'
 import { CommandModule } from './command/command.module'
+import { EmailModule } from '@src/email/email.module'
 
 @Module({
 	imports: [
@@ -27,6 +28,7 @@ import { CommandModule } from './command/command.module'
 		BcryptModule,
 		UserModule,
 		AuthModule,
+		EmailModule,
 		CommandModule
 	],
 	providers: [

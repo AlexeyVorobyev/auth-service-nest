@@ -1,11 +1,9 @@
 import { GetAllDto } from '@src/common/dto/get-all.dto'
 import { IsOptional, ValidateNested } from 'class-validator'
 import { ERole } from '@src/common/enum/role.enum'
-import { plainToClass, plainToClassFromExist, plainToInstance, Transform, Type } from 'class-transformer'
+import { Transform } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
-import { ESortDirection } from '@src/common/enum/ESortDirection.enum'
 import { DatePeriodDto } from '@src/common/dto/date-period.dto'
-import { SortDto } from '@src/common/dto/sort.dto'
 import { apiPayloadDatePeriodDtoAdapter } from '@src/common/adapter/api-payload-date-period-dto.adapter'
 
 export class UserGetAllDto extends GetAllDto {
@@ -15,7 +13,6 @@ export class UserGetAllDto extends GetAllDto {
 		type: ERole,
 		enum: ERole
 	})
-	@Type(() => String)
 	@IsOptional()
 	roleFilter?: ERole
 

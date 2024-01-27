@@ -1,6 +1,7 @@
 import { ERole } from '@src/common/enum/role.enum'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsEmail, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { IsArray, IsBoolean, IsEmail, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { Type } from 'class-transformer'
 
 export class UserUpdateDto {
 	@ApiProperty({
@@ -36,4 +37,13 @@ export class UserUpdateDto {
 	@IsArray()
 	@IsOptional()
 	roles?: ERole[]
+
+	@ApiProperty({
+		description: 'Defines are user verified',
+		example: true,
+		type: Boolean
+	})
+	@IsBoolean()
+	@IsOptional()
+	verified?: boolean
 }

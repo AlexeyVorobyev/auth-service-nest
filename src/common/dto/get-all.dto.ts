@@ -1,4 +1,4 @@
-import { IsOptional, IsPositive, IsString, Min, ValidateNested } from 'class-validator'
+import { IsNumber, IsOptional, IsPositive, IsString, Min, ValidateNested } from 'class-validator'
 import { plainToClass, plainToClassFromExist, plainToInstance, Transform, Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { ESortDirection } from '@src/common/enum/ESortDirection.enum'
@@ -10,9 +10,10 @@ export abstract class GetAllDto {
 		required: false,
 		type: Number
 	})
-	@Type(() => Number)
 	@Min(0)
+	@IsNumber()
 	@IsOptional()
+	@Type(() => Number)
 	page?: number = 0
 
 	@ApiProperty({
@@ -20,9 +21,10 @@ export abstract class GetAllDto {
 		required: false,
 		type: Number
 	})
-	@Type(() => Number)
 	@IsPositive()
+	@IsNumber()
 	@IsOptional()
+	@Type(() => Number)
 	perPage?: number = 8
 
 	@ApiProperty({
@@ -31,7 +33,6 @@ export abstract class GetAllDto {
 		type: String,
 	})
 	@IsString()
-	@Type(() => String)
 	@IsOptional()
 	simpleFilter?: string = ""
 

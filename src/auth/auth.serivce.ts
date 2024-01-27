@@ -45,6 +45,7 @@ export class AuthService {
 			.email(signUpDto.email)
 			.password(signUpDto.password)
 			.roles([DEFAULT_ROLE])
+			.verified(false)
 		await this.userService.create(userCreateDtoBuilder.build())
 	}
 

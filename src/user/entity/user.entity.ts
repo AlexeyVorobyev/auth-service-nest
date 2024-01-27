@@ -49,4 +49,7 @@ export class UserEntity {
 
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date
+
+	@Column({default: false})
+	verified: boolean
 }

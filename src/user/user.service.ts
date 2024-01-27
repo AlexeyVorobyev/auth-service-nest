@@ -11,7 +11,7 @@ import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
 import { UserRepository } from './repository/user.repository'
 import { UserGetAllDto } from './dto/user-get-all.dto'
-import { Between, FindOperator, Like } from 'typeorm'
+import { Between, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
 import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
@@ -32,18 +32,17 @@ export class UserService {
 	}
 
 	async getAll(params: UserGetAllDto): Promise<UserGetAllResponseDto> {
-		console.log(params)
 		const userEntityInstances = await this.userRepository.getAll(
 			{
 				email: Like(`%${params.simpleFilter}%`),
-				createdAt: Between(
-					params.createDatePeriod.startDate,
-					params.createDatePeriod.endDate
-				),
-				updatedAt: Between(
-					params.updateDatePeriod.startDate,
-					params.updateDatePeriod.endDate
-				),
+				createdAt: params.createDatePeriod ? Between(
+					params.createDatePeriod.startDate || new Date(new Date().setFullYear(0,0,0)),
+					params.createDatePeriod.endDate || new Date(new Date().setFullYear(10000,0,0))
+				) : undefined,
+				updatedAt: params.updateDatePeriod ? Between(
+					params.updateDatePeriod.startDate || new Date(new Date().setFullYear(0,0,0)),
+					params.updateDatePeriod.endDate || new Date(new Date().setFullYear(10000,0,0))
+				) : undefined,
 				roles: {
 					name: params.roleFilter
 				}
@@ -53,6 +52,7 @@ export class UserService {
 				Builder(UserEntity)
 					.id(null).email(null).password(null)
 					.createdAt(null).updatedAt(null).roles(null)
+					.verified(null)
 					.build()
 			),
 			params.page,
@@ -62,16 +62,16 @@ export class UserService {
 
 		const totalElements = await this.userRepository.count({
 			email: Like(`%${params.simpleFilter}%`),
-			createdAt: Between(
-				params.createDatePeriod.startDate,
-				params.createDatePeriod.endDate
-			),
-			updatedAt: Between(
-				params.updateDatePeriod.startDate,
-				params.updateDatePeriod.endDate
-			),
+			createdAt: params.createDatePeriod ? Between(
+				params.createDatePeriod.startDate || new Date(new Date().setFullYear(0,0,0)),
+				params.createDatePeriod.endDate || new Date(new Date().setFullYear(10000,0,0))
+			) : undefined,
+			updatedAt: params.updateDatePeriod ? Between(
+				params.updateDatePeriod.startDate || new Date(new Date().setFullYear(0,0,0)),
+				params.updateDatePeriod.endDate || new Date(new Date().setFullYear(10000,0,0))
+			) : undefined,
 			roles: {
-				name: Like(`%${params.roleFilter}%`) as FindOperator<ERole>
+				name: params.roleFilter
 			}
 		})
 
@@ -123,7 +123,7 @@ export class UserService {
 		userBuilder
 			.email(userCreateDto.email)
 			.password(await this.bcryptService.hash(userCreateDto.password))
-			.roles(roleInstances)
+			.roles(roleInstances).verified(userCreateDto.verified)
 		const createdUserEntityInstance = await this.userRepository.saveOne(userBuilder.build())
 
 		return userEntityToUserResponseDtoAdapter(createdUserEntityInstance)
@@ -186,7 +186,7 @@ export class UserService {
 			Builder(UserEntity)
 				.email(userUpdateDto?.email || undefined)
 				.password(userUpdateDto?.password ? await this.bcryptService.hash(userUpdateDto.password) : undefined)
-				.roles(roleInstances)
+				.roles(roleInstances).verified(userUpdateDto?.verified || undefined)
 				.build()
 		)
 	}

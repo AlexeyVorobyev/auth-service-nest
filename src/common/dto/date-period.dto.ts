@@ -3,9 +3,9 @@ import { IsDateString, IsOptional } from 'class-validator'
 export class DatePeriodDto {
 	@IsDateString()
 	@IsOptional()
-	startDate?: Date
+	startDate: Date
 
-	@IsDateString()
 	@IsOptional()
-	endDate?: Date
+	@IsDateString()
+	endDate: Date
 }

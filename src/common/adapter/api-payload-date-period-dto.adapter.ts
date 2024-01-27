@@ -1,7 +1,7 @@
-import { plainToInstance } from 'class-transformer'
+import { plainToInstance, TransformFnParams } from 'class-transformer'
 import { DatePeriodDto } from '@src/common/dto/date-period.dto'
 
-export const apiPayloadDatePeriodDtoAdapter = (transformPayload) => {
+export const apiPayloadDatePeriodDtoAdapter = (transformPayload: TransformFnParams): DatePeriodDto => {
 	const transformItem = (item: unknown) => {
 		if (typeof item === 'string') {
 			const splitString = item.split(',')
@@ -9,8 +9,8 @@ export const apiPayloadDatePeriodDtoAdapter = (transformPayload) => {
 				return item
 			}
 			return {
-				startDate: splitString[0],
-				endDate: splitString[1],
+				startDate: splitString[0].length ? splitString[0] : undefined,
+				endDate: splitString[1].length ? splitString[1] : undefined
 			}
 		} else {
 			return item

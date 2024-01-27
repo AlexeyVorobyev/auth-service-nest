@@ -11,5 +11,6 @@ export const userEntityToUserResponseDtoAdapter = (userEntityInstance: UserEntit
 		.roles(userEntityInstance.roles.map((roleEntityInstance: RoleEntity) => roleEntityInstance.name))
 		.updatedAt(userEntityInstance.updatedAt)
 		.createdAt(userEntityInstance.createdAt)
+		.verified(userEntityInstance.verified)
 	return userResponseDtoBuilder.build()
 }
