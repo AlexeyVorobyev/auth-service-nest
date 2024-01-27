@@ -1,5 +1,5 @@
 import { IsOptional, IsPositive, IsString, Min, ValidateNested } from 'class-validator'
-import { plainToClass, Transform, Type } from 'class-transformer'
+import { plainToClass, plainToClassFromExist, plainToInstance, Transform, Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { ESortDirection } from '@src/common/enum/ESortDirection.enum'
 import { SortDto } from '@src/common/dto/sort.dto'
@@ -61,9 +61,9 @@ export abstract class GetAllDto {
 		}
 
 		if ((transformPayload.value instanceof Array)) {
-			return transformPayload.value.map((item) => plainToClass(SortDto, transformItem(item)))
+			return transformPayload.value.map((item) => plainToInstance(SortDto, transformItem(item)))
 		} else {
-			return [plainToClass(SortDto, transformItem(transformPayload.value))]
+			return [plainToInstance(SortDto, transformItem(transformPayload.value))]
 		}
 	})
 	sort?: SortDto[]

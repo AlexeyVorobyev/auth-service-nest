@@ -10,5 +10,5 @@ export class SortDto {
 	@IsString()
 	@IsNotEmpty()
 	@Matches(/^(ASC|DESC)$/g)
-	direction: `${ESortDirection}`
+	direction: ESortDirection
 }

@@ -11,7 +11,7 @@ import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
 import { UserRepository } from './repository/user.repository'
 import { UserGetAllDto } from './dto/user-get-all.dto'
-import { FindOperator, Like } from 'typeorm'
+import { Between, FindOperator, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
 import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
@@ -32,9 +32,18 @@ export class UserService {
 	}
 
 	async getAll(params: UserGetAllDto): Promise<UserGetAllResponseDto> {
+		console.log(params)
 		const userEntityInstances = await this.userRepository.getAll(
 			{
 				email: Like(`%${params.simpleFilter}%`),
+				createdAt: Between(
+					params.createDatePeriod.startDate,
+					params.createDatePeriod.endDate
+				),
+				updatedAt: Between(
+					params.updateDatePeriod.startDate,
+					params.updateDatePeriod.endDate
+				),
 				roles: {
 					name: params.roleFilter
 				}
@@ -53,6 +62,14 @@ export class UserService {
 
 		const totalElements = await this.userRepository.count({
 			email: Like(`%${params.simpleFilter}%`),
+			createdAt: Between(
+				params.createDatePeriod.startDate,
+				params.createDatePeriod.endDate
+			),
+			updatedAt: Between(
+				params.updateDatePeriod.startDate,
+				params.updateDatePeriod.endDate
+			),
 			roles: {
 				name: Like(`%${params.roleFilter}%`) as FindOperator<ERole>
 			}
