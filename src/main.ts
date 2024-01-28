@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config'
 import { ValidationPipe } from '@nestjs/common'
 
 async function bootstrap() {
-	require('dotenv').config()
 	const app = await NestFactory.create(AppModule,{
 		cors: true
 	})

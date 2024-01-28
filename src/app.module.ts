@@ -16,10 +16,12 @@ import { BcryptModule } from './bcrypt/bcrypt.module'
 import { CommandModule } from './command/command.module'
 import { EmailModule } from '@src/email/email.module'
 import emailConfig from '@src/common/config/email.config'
+import * as process from 'process'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
+			envFilePath: [`${process.cwd()}/.env.local`, `${process.cwd()}/.env`],
 			isGlobal: true,
 			load: [appConfig, databaseConfig, swaggerConfig, JwtConfig, emailConfig],
 			validate
