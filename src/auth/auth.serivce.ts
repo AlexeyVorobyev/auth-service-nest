@@ -1,19 +1,13 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
-import { JwtService } from '@nestjs/jwt'
-import { randomUUID } from 'crypto'
 import jwtConfig from '../common/config/jwt.config'
-import { IActiveUserData } from '../common/interface/active-user-data.interface'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
-import { UserEntity } from '../user/entity/user.entity'
 import { SignInResponseDto } from './dto/sign-in-response.dto'
 import { Builder } from 'builder-pattern'
 import { RefreshDto } from './dto/refresh.dto'
 import { RefreshResponseDto } from './dto/refresh-response.dto'
-import { EPostgreSQLErrorCode } from '../common/enum/EPostgreSQLErrorCode'
-import { RoleEntity } from '../role/entity/role.entity'
 import { DEFAULT_ROLE } from '../common/constant'
 import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
@@ -21,6 +15,8 @@ import { UserService } from '../user/user.service'
 import { UserCreateDto } from '../user/dto/user-create.dto'
 import { UserRepository } from '../user/repository/user.repository'
 import { EmailService } from '@src/email/email.service'
+import { JwtAlexService } from '@src/jwt/jwt-alex.service'
+import { EJwtStrategy } from '@src/common/enum/jwt-strategy.enum'
 
 @Injectable()
 export class AuthService {
@@ -29,16 +25,14 @@ export class AuthService {
 		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
 		@Inject(BcryptService)
 		private readonly bcryptService: BcryptService,
-		@Inject('JwtAccessService')
-		private readonly jwtAccessService: JwtService,
-		@Inject('JwtRefreshService')
-		private readonly jwtRefreshService: JwtService,
 		@Inject(UserService)
 		private readonly userService: UserService,
 		@Inject(UserRepository)
 		private readonly userRepository: UserRepository,
 		@Inject(EmailService)
-		private readonly emailService: EmailService
+		private readonly emailService: EmailService,
+		@Inject(JwtAlexService)
+		private readonly jwtAlexService: JwtAlexService
 	) {
 	}
 
@@ -49,14 +43,19 @@ export class AuthService {
 			.password(signUpDto.password)
 			.roles([DEFAULT_ROLE])
 			.verified(false)
-		await this.userService.create(userCreateDtoBuilder.build())
+		const userCreateResponseDtoInstance = await this.userService.create(userCreateDtoBuilder.build())
+		const userEntityInstance = await this.userRepository.getOne({ id: userCreateResponseDtoInstance.id })
+		await this.emailService.sendUserConfirmation(
+			userEntityInstance,
+			await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.verify)
+		)
 	}
 
 	async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
 		const { email, password } = signInDto
 
-		const user = await this.userRepository.getOne({ email: email })
-		if (!user) {
+		const userEntityInstance = await this.userRepository.getOne({ email: email })
+		if (!userEntityInstance) {
 			Builder(UniversalError)
 				.messages(['Invalid email'])
 				.exceptionBaseClass(EUniversalExceptionType.badRequest)
@@ -65,7 +64,7 @@ export class AuthService {
 
 		const isPasswordMatch = await this.bcryptService.compare(
 			password,
-			user.password
+			userEntityInstance.password
 		)
 		if (!isPasswordMatch) {
 			Builder(UniversalError)
@@ -76,30 +75,18 @@ export class AuthService {
 
 		const SignInResponseBuilder = Builder(SignInResponseDto)
 		SignInResponseBuilder
-			.accessToken(await this.generateAccessToken(user))
+			.accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
 			.accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
-			.refreshToken(await this.generateRefreshToken(user))
+			.refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
 			.refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
 		return SignInResponseBuilder.build()
 	}
 
 	async refresh(refreshDto: RefreshDto, userId: string): Promise<RefreshResponseDto> {
-		try {
-			await this.jwtRefreshService.verifyAsync<IActiveUserData>(
-				refreshDto.refreshToken,
-				{
-					secret: this.jwtConfiguration.refreshSecret
-				}
-			)
-		} catch (error) {
-			Builder(UniversalError)
-				.messages([error.message])
-				.exceptionBaseClass(EUniversalExceptionType.badRequest)
-				.build().throw()
-		}
+		await this.jwtAlexService.verifyToken(refreshDto.refreshToken,EJwtStrategy.refresh)
 
-		const user = await this.userRepository.getOne({ id: userId })
-		if (!user) {
+		const userEntityInstance = await this.userRepository.getOne({ id: userId })
+		if (!userEntityInstance) {
 			Builder(UniversalError)
 				.messages(['Invalid userId'])
 				.exceptionBaseClass(EUniversalExceptionType.badRequest)
@@ -108,45 +95,22 @@ export class AuthService {
 
 		const RefreshResponseBuilder = Builder(RefreshResponseDto)
 		RefreshResponseBuilder
-			.accessToken(await this.generateAccessToken(user))
+			.accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
 			.accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
-			.refreshToken(await this.generateRefreshToken(user))
+			.refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
 			.refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
 		return RefreshResponseBuilder.build()
 	}
 
-	async generateRefreshToken(
-		user: Partial<UserEntity>
-	): Promise<string> {
-		const tokenId = randomUUID()
-
-		return await this.jwtRefreshService.signAsync(
-			{
-				id: user.id,
-				email: user.email,
-				tokenId: tokenId,
-				roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name)
-			} as IActiveUserData
-		)
-	}
-
-	async generateAccessToken(
-		user: Partial<UserEntity>
-	): Promise<string> {
-		const tokenId = randomUUID()
-
-		return await this.jwtAccessService.signAsync(
-			{
-				id: user.id,
-				email: user.email,
-				tokenId: tokenId,
-				roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name)
-			} as IActiveUserData
-		)
-	}
-
 	async resendConfirmationMail(userId: string) {
-		const user = await this.userRepository.getOne({ id: userId })
-		await this.emailService.sendUserConfirmation(user)
+		const userEntityInstance = await this.userRepository.getOne({ id: userId })
+		await this.emailService.sendUserConfirmation(
+			userEntityInstance,
+			await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.verify)
+		)
+	}
+
+	async verifyCallback(token:string, redirect:string) {
+		console.log(token,redirect)
 	}
 }

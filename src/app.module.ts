@@ -17,6 +17,7 @@ import { CommandModule } from './command/command.module'
 import { EmailModule } from '@src/email/email.module'
 import emailConfig from '@src/common/config/email.config'
 import * as process from 'process'
+import { JwtAlexModule } from '@src/jwt/jwt-alex.module'
 
 @Module({
 	imports: [
@@ -27,6 +28,7 @@ import * as process from 'process'
 			validate
 		}),
 		DatabaseModule,
+		JwtAlexModule,
 		RoleModule,
 		BcryptModule,
 		UserModule,

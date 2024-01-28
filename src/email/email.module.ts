@@ -17,7 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 						user: configService.get('email.user'),
 						pass: configService.get('email.pass')
 					}
-				},
+				}
 			})
 		})
 	],

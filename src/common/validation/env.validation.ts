@@ -12,6 +12,14 @@ class EnvironmentVariables {
 
 	@IsString()
 	@IsNotEmpty()
+	ADDRESS: string
+
+	@IsString()
+	@IsNotEmpty()
+	REDIRECT: string
+
+	@IsString()
+	@IsNotEmpty()
 	DB_HOST: string
 
 	@IsNumber()
@@ -38,9 +46,21 @@ class EnvironmentVariables {
 	@IsNotEmpty()
 	JWT_REFRESH_TOKEN_SECRET: string
 
+	@IsString()
+	@IsNotEmpty()
+	JWT_VERIFY_TOKEN_SECRET: string
+
 	@IsNotEmpty()
 	@IsNumber()
 	JWT_ACCESS_TOKEN_TTL: number
+
+	@IsNotEmpty()
+	@IsNumber()
+	JWT_REFRESH_TOKEN_TTL: number
+
+	@IsNotEmpty()
+	@IsNumber()
+	JWT_VERIFY_TOKEN_TTL: number
 
 	@IsString()
 	@IsNotEmpty()

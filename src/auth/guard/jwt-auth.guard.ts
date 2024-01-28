@@ -1,23 +1,20 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
-import { ConfigType } from '@nestjs/config'
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
-import jwtConfig from '../../common/config/jwt.config'
-import { IActiveUserData } from '../../common/interface/active-user-data.interface'
-import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from '../../common/constant'
+import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from '@src/common/constant'
 import { Builder } from 'builder-pattern'
-import { UniversalError } from '../../common/class/universal-error'
-import { EUniversalExceptionType } from '../../common/enum/exceptions'
+import { UniversalError } from '@src/common/class/universal-error'
+import { EUniversalExceptionType } from '@src/common/enum/exceptions'
+import { JwtAlexService } from '@src/jwt/jwt-alex.service'
+import { EJwtStrategy } from '@src/common/enum/jwt-strategy.enum'
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
 	constructor(
-		@Inject(jwtConfig.KEY)
-		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-		@Inject('JwtAccessService')
-		private readonly jwtAccessService: JwtService,
-		private reflector: Reflector
+		@Inject(JwtAlexService)
+		private readonly jwtAlexService: JwtAlexService,
+		@Inject(Reflector)
+		private readonly reflector: Reflector
 	) {
 	}
 
@@ -39,19 +36,7 @@ export class JwtAuthGuard implements CanActivate {
 				.build().throw()
 		}
 
-		try {
-			request[REQUEST_USER_KEY] = await this.jwtAccessService.verifyAsync<IActiveUserData>(
-				token,
-				{
-					secret: this.jwtConfiguration.accessSecret
-				}
-			)
-		} catch (error) {
-			Builder(UniversalError)
-				.messages([error.message])
-				.exceptionBaseClass(EUniversalExceptionType.unauthorized)
-				.build().throw()
-		}
+		request[REQUEST_USER_KEY] = await this.jwtAlexService.verifyToken(token, EJwtStrategy.access)
 
 		return true
 	}

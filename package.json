@@ -22,9 +22,6 @@
   },
   "dependencies": {
     "-": "^0.0.1",
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.6",
     "@nestjs-modules/mailer": "^1.10.3",
     "@nestjs/common": "^10.3.1",
     "@nestjs/config": "^3.1.1",

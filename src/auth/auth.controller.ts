@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common'
 import {
 	ApiBadRequestResponse,
 	ApiBearerAuth,
@@ -16,6 +16,7 @@ import { RefreshDto } from './dto/refresh.dto'
 import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { ActiveUser } from '../common/decorator/active-user.decorator'
 import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
+import { VerifyCallbackDto } from '@src/auth/dto/verify-callback.dto'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -35,8 +36,8 @@ export class AuthController {
 		description: 'User has been successfully signed up'
 	})
 	@ApiOperation({
-		summary:'Sign-up endpoint',
-		description:'Provides functionality of creating new user in system.'
+		summary: 'Sign-up endpoint',
+		description: 'Provides functionality of creating new user in system.'
 	})
 	@Public()
 	@Post('sign-up')
@@ -54,8 +55,8 @@ export class AuthController {
 	})
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
-		summary:'Sign-in endpoint',
-		description:'Allows to get JWT Tokens to logged user.'
+		summary: 'Sign-in endpoint',
+		description: 'Allows to get JWT Tokens to logged user.'
 	})
 	@Public()
 	@Post('sign-in')
@@ -72,8 +73,8 @@ export class AuthController {
 		type: RefreshResponseDto
 	})
 	@ApiOperation({
-		summary:'Refresh JWT tokens endpoint',
-		description:'Allows to refresh JWT Tokens to logged user.'
+		summary: 'Refresh JWT tokens endpoint',
+		description: 'Allows to refresh JWT Tokens to logged user.'
 	})
 	@Public()
 	@Post('refresh')
@@ -84,17 +85,17 @@ export class AuthController {
 		return this.authService.refresh(refreshDto, userId)
 	}
 
-	@ApiOkResponse({
+	@ApiUnauthorizedResponse({
+		description: 'Provided accessToken are invalid or expired or accessToken not provided',
+		type: UniversalExceptionDto
+	})
+	@ApiCreatedResponse({
 		description: 'User successfully received confirmation email',
 		type: RefreshResponseDto
 	})
 	@ApiOperation({
-		summary:'Resend confirmation email endpoint',
-		description:'Allows to send confirmation email to current user.'
-	})
-	@ApiUnauthorizedResponse({
-		description: 'Provided accessToken are invalid or expired or accessToken not provided',
-		type: UniversalExceptionDto
+		summary: 'Resend confirmation email endpoint',
+		description: 'Allows to send confirmation email to current user.'
 	})
 	@ApiBearerAuth()
 	@Post('resend-confirmation-email')
@@ -103,15 +104,32 @@ export class AuthController {
 	}
 
 	@ApiUnauthorizedResponse({
-		description: 'Provided accessToken are invalid or expired or accessToken not provided',
+		description: 'Provided verifyToken are invalid or expired or accessToken not provided',
+		type: UniversalExceptionDto
+	})
+	@ApiOkResponse({
+		description: 'User email successfully verified'
+	})
+	@ApiOperation({
+		summary: 'Callback endpoint to verify email',
+		description: 'Allows to verify email with provided token and then redirect user to main site'
+	})
+	@Public()
+	@Get('verify-callback')
+	async verifyCallback(@Query() params: VerifyCallbackDto) {
+		await this.authService.verifyCallback(params.token, params.redirect)
+	}
+
+	@ApiUnauthorizedResponse({
+		description: 'Provided accessToken are invalid or expired or verifyToken not provided',
 		type: UniversalExceptionDto
 	})
 	@ApiOkResponse({
 		description: 'User successfully authenticated'
 	})
 	@ApiOperation({
-		summary:'Service endpoint for services',
-		description:'Allows authentication of user.'
+		summary: 'Service endpoint for services',
+		description: 'Allows authentication of user.'
 	})
 	@HttpCode(HttpStatus.OK)
 	@ApiBearerAuth()
