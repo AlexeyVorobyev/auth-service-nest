@@ -9,7 +9,7 @@ import { RoleRepository } from '../role/repository/role.repository'
 	name: 'base-roles-init',
 	description: 'Initialize base roles in system'
 })
-export class BaseRolesInit extends CommandRunner {
+export class BaseRolesInitCommand extends CommandRunner {
 	private rolesList: string[]
 
 	constructor(

@@ -18,7 +18,7 @@ interface BasicCommandOptions {
 	name: 'create-super-user',
 	description: 'Initialize base roles in system'
 })
-export class CreateSuperUser extends CommandRunner {
+export class CreateSuperUserCommand extends CommandRunner {
 
 	constructor(
 		@Inject(UserService)

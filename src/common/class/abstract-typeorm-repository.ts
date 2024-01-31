@@ -97,7 +97,6 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 		try {
 			await this.typeormRepository.delete(filter)
 		} catch (error) {
-			console.log(error.code)
 			if (error.code === EPostgreSQLErrorCode.foreignKeyViolation) {
 				Builder(UniversalError)
 					.messages([

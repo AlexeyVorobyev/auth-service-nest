@@ -1,7 +1,7 @@
 import { UserResponseDto } from '../dto/user-response.dto'
 import { UserEntity } from '../entity/user.entity'
 import { Builder } from 'builder-pattern'
-import { RoleEntity } from '../../role/entity/role.entity'
+import { RoleEntity } from '@src/role/entity/role.entity'
 
 export const userEntityToUserResponseDtoAdapter = (userEntityInstance: UserEntity): UserResponseDto => {
 	const userResponseDtoBuilder = Builder(UserResponseDto)

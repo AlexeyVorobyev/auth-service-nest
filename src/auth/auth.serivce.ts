@@ -44,6 +44,7 @@ export class AuthService {
 			.roles([DEFAULT_ROLE])
 			.verified(false)
 		const userCreateResponseDtoInstance = await this.userService.create(userCreateDtoBuilder.build())
+
 		const userEntityInstance = await this.userRepository.getOne({ id: userCreateResponseDtoInstance.id })
 		await this.emailService.sendUserConfirmation(
 			userEntityInstance,
