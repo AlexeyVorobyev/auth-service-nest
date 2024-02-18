@@ -22,7 +22,8 @@
       "@modules/*": ["./src/modules/*"],
       "@shared/*": ["./src/module/shared/*"],
       "@src/*": ["./src/*"],
-      "@env/*": ["./env/*"]
+      "@env/*": ["./env/*"],
+      "~/*": ["*"]
     },
     "jsx": "react-jsx",
   }

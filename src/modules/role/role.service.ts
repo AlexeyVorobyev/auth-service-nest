@@ -8,4 +8,8 @@ export class RoleService {
 		private readonly roleRepository: RoleRepository
 	) {
 	}
+
+	getAll() {
+		return this.roleRepository.getAll()
+	}
 }

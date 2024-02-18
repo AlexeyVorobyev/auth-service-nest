@@ -3,23 +3,21 @@ import {ConfigService} from '@nestjs/config';
 import {config} from 'dotenv';
 import {databaseEntities} from './database.entities';
 import * as path from 'path';
-
 config({
-    path: path.resolve(`./.env`)
-})
-config({
-    path: path.resolve(`./.env.${process.env.NODE_ENV}`),
+    path: path.resolve(`env/.env`)
 })
 
 const configService = new ConfigService()
 
+console.log(configService)
+
 export default new DataSource({
     type: 'postgres',
-    host: configService.get<string>('database.host'),
-    port: configService.get<number>('database.port'),
-    username: configService.get<string>('database.username'),
-    password: configService.get<string>('database.password'),
-    database: configService.get<string>('database.name'),
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get<number>('DB_PORT'),
+    username: configService.get<string>('DB_USER'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_NAME'),
     entities: [...databaseEntities],
     synchronize: false,
     logging: configService.get('NODE_ENV') === 'development',

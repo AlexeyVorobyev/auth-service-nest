@@ -1,10 +1,12 @@
-import {
-	AppModule
-} from './app.module'
 import { CommandFactory } from 'nest-commander'
+import { AppModule } from '@src/app.module'
+import { config } from 'dotenv'
 
 async function bootstrap() {
-	await CommandFactory.run(AppModule)
+    config({
+        path: 'env/.env'
+    })
+    await CommandFactory.run(AppModule)
 }
 
 bootstrap()

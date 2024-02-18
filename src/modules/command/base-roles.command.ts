@@ -6,30 +6,32 @@ import { RoleEntity } from '../role/entity/role.entity'
 import { RoleRepository } from '../role/repository/role.repository'
 
 @Command({
-	name: 'base-roles-init',
-	description: 'Initialize base roles in system'
+    name: 'base-roles-init',
+    description: 'Initialize base roles in system',
 })
 export class BaseRolesInitCommand extends CommandRunner {
-	private rolesList: string[]
+    private rolesList: ERole[]
 
-	constructor(
-		@Inject(RoleRepository)
-		private readonly roleRepository: RoleRepository
-	) {
-		super()
-		this.rolesList = Object.values(ERole)
-	}
+    constructor(
+        @Inject(RoleRepository)
+        private readonly roleRepository: RoleRepository,
+    ) {
+        super()
+        this.rolesList = Object.values(ERole)
+    }
 
-	async run(): Promise<void> {
-		this.rolesList.forEach((role: ERole) => {
-			if (this.roleRepository.getOne({ name: role })) {
-				return
-			}
-
-			const RoleEntityBuilder = Builder(RoleEntity)
-			RoleEntityBuilder
-				.name(role)
-			this.roleRepository.saveOne(RoleEntityBuilder.build())
-		})
-	}
+    async run(): Promise<void> {
+        console.log(await this.roleRepository.getAll())
+        for (const role of this.rolesList) {
+            try {
+                await this.roleRepository.getOne({ name: role })
+            }
+            catch (error) {
+                const RoleEntityBuilder = Builder(RoleEntity)
+                RoleEntityBuilder
+                    .name(role)
+                await this.roleRepository.saveOne(RoleEntityBuilder.build())
+            }
+        }
+    }
 }

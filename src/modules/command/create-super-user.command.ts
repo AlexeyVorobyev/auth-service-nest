@@ -12,7 +12,7 @@ interface BasicCommandOptions {
 
 @Command({
 	name: 'create-super-user',
-	description: 'Initialize base roles in system'
+	description: 'Initialize super user in a system'
 })
 export class CreateSuperUserCommand extends CommandRunner {
 
