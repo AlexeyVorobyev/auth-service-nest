@@ -25,6 +25,5 @@
       "@env/*": ["./env/*"]
     },
     "jsx": "react-jsx",
-    "tsx": "react-tsx"
   }
 }
