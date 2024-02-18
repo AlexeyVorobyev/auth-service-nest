@@ -6,21 +6,20 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 #4. Установка зависимостей
-RUN npm install -g yarn
-RUN yarn install --force
+RUN yarn
 #5. Копируем основные файлы проекта
 COPY . .
-#6. Билдим проект
-RUN yarn build
 
 ENV ADMIN_PASSWORD admin
 ENV ADMIN_EMAIL admin@admin.com
 
-CMD yarn command-nest base-roles-init \
-&& yarn command-nest create-super-user -password --password="${ADMIN_PASSWORD}" -email --email="${ADMIN_EMAIL}"
+RUN yarn command-nest base-roles-init
+RUN yarn command-nest create-super-user -password --password="${ADMIN_PASSWORD}" -email --email="${ADMIN_EMAIL}"
+
+#6. Билдим проект
+RUN yarn build
 
 FROM node:latest
-RUN npm install -g yarn
 
 WORKDIR /app
 
