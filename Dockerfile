@@ -10,12 +10,6 @@ RUN yarn
 #5. Копируем основные файлы проекта
 COPY . .
 
-ENV ADMIN_PASSWORD admin
-ENV ADMIN_EMAIL admin@admin.com
-
-RUN yarn command-nest base-roles-init
-RUN yarn command-nest create-super-user -password --password="${ADMIN_PASSWORD}" -email --email="${ADMIN_EMAIL}"
-
 #6. Билдим проект
 RUN yarn build
 
@@ -27,6 +21,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/dist ./dist
+
+ENV ADMIN_PASSWORD admin
+ENV ADMIN_EMAIL admin@admin.com
 
 EXPOSE 8081
 

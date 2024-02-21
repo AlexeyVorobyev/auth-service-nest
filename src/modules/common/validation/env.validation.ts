@@ -1,10 +1,10 @@
 import { plainToInstance } from 'class-transformer'
 import { IsEnum, IsNotEmpty, IsNumber, IsString, validateSync } from 'class-validator'
-import { Environment } from '../enum/environment.enum'
+import { EEnvironment } from '../enum/environment.enum'
 
 class EnvironmentVariables {
-	@IsEnum(Environment)
-	NODE_ENV: Environment
+	@IsEnum(EEnvironment)
+	NODE_ENV: EEnvironment
 
 	@IsNumber()
 	@IsNotEmpty()

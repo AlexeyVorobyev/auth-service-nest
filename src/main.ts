@@ -3,12 +3,8 @@ import { AppModule } from './app.module'
 import { setupSwagger } from './swagger'
 import { ConfigService } from '@nestjs/config'
 import { ValidationPipe } from '@nestjs/common'
-import { config } from 'dotenv'
 
 async function bootstrap() {
-    config({
-        path: 'env/.env'
-    })
     const app = await NestFactory.create(AppModule, {
         cors: true,
     })

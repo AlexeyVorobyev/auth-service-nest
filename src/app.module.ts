@@ -5,7 +5,6 @@ import databaseConfig from '@modules/common/config/database.config'
 import swaggerConfig from '@modules/common/config/swagger.config'
 import JwtConfig from '@modules/common/config/jwt.config'
 import emailConfig from '@modules/common/config/email.config'
-import { validate } from 'class-validator'
 import { DatabaseModule } from '@modules/database/database.module'
 import { JwtAlexModule } from '@modules/jwt/jwt-alex.module'
 import { RoleModule } from '@modules/role/role.module'
@@ -17,13 +16,15 @@ import { APP_GUARD } from '@nestjs/core'
 import { RoleGuard } from '@modules/role/guard/role.guard'
 import { EmailModule } from '@modules/email/email.module'
 import { CommandModule } from '@modules/command/command.module'
+import { validate } from '@modules/common/validation/env.validation'
 
 @Module({
     imports: [
         ConfigModule.forRoot({
+            envFilePath: `env/.env.${process.env.NODE_ENV}`,
             isGlobal: true,
             load: [appConfig, databaseConfig, swaggerConfig, JwtConfig, emailConfig],
-            validate,
+            validate: validate,
         }),
         DatabaseModule,
         JwtAlexModule,
