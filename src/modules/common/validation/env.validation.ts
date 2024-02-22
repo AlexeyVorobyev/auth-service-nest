@@ -16,7 +16,11 @@ class EnvironmentVariables {
 
 	@IsString()
 	@IsNotEmpty()
-	REDIRECT: string
+	REDIRECT_SUCCESS: string
+
+	@IsString()
+	@IsNotEmpty()
+	REDIRECT_FAILURE: string
 
 	@IsString()
 	@IsNotEmpty()

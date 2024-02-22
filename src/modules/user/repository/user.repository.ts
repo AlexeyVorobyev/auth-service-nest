@@ -16,6 +16,9 @@ export class UserRepository extends AbstractTypeormRepository<UserEntity> {
 		super(typeormRepository)
 	}
 
+	/**
+	 * Workaround for updating entities with many-to-many relation via typeorm.repository.save method
+	 * */
 	async update(filter: FindOptionsWhere<UserEntity>, entity: Partial<UserEntity>): Promise<void> {
 		const userInstance = await super.getOne(filter)
 		try {
@@ -24,6 +27,7 @@ export class UserRepository extends AbstractTypeormRepository<UserEntity> {
 					.id(userInstance.id)
 					.createdAt(userInstance.createdAt)
 					.updatedAt(userInstance.updatedAt)
+					.verified(entity?.verified || userInstance?.verified)
 					.password(entity?.password || userInstance.password)
 					.email(entity?.email || userInstance.email)
 					.roles(entity?.roles || userInstance.roles)

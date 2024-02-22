@@ -9,9 +9,16 @@ export class VerifyCallbackDto {
 	token: string
 
 	@ApiProperty({
-		description: 'redirect URL',
+		description: 'redirect URL if success',
 		required: true,
 		type: String,
 	})
-	redirect: string
+	redirectSuccess: string
+
+	@ApiProperty({
+		description: 'redirect URL if failure',
+		required: true,
+		type: String,
+	})
+	redirectFailure: string
 }

@@ -25,7 +25,8 @@ export class EmailService {
 				username: user.email,
 				token: jwtToken,
 				applicationAddress: this.appConfiguration.address,
-				redirectAddress: this.appConfiguration.redirect
+				redirectSuccessAddress: this.appConfiguration.redirectSuccess,
+				redirectFailureAddress: this.appConfiguration.redirectFailure
 			}) as ReactElement),
 			context: {
 				name: user.email
