@@ -54,7 +54,7 @@ export class UserService {
 				params.sort,
 				Builder(UserEntity)
 					.id(null).email(null).password(null)
-					.createdAt(null).updatedAt(null).roles(null)
+					.createdAt(null).updatedAt(null)
 					.verified(null)
 					.build()
 			),
