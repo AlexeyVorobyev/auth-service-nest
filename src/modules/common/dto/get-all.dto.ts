@@ -68,5 +68,5 @@ export abstract class GetAllDto {
 			return [plainToInstance(SortDto, transformItem(transformPayload.value))]
 		}
 	})
-	sort?: SortDto[]
+	sort?: SortDto[] = []
 }

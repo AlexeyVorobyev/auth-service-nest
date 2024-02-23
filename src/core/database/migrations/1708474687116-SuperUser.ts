@@ -1,15 +1,19 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import * as process from 'process'
+import { BcryptService } from '@modules/bcrypt/bcrypt.service'
+
+const bcryptService = new BcryptService()
 
 export class SuperUser1708474687116 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        const hashedPassword = await bcryptService.hash(process.env.ADMIN_PASSWORD)
         await queryRunner.query(
             `
                 INSERT INTO public.user (email, password)
                 VALUES ($1, $2);
             `,
-            [process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD],
+            [process.env.ADMIN_EMAIL, hashedPassword],
         )
         await queryRunner.query(
             `
