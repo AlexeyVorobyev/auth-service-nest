@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common'
 import { Command, CommandRunner, Option } from 'nest-commander'
 import { Builder } from 'builder-pattern'
 import { UserService } from '@modules/user/user.service'
-import { UserCreateDto } from '@modules/user/dto/user-create.dto'
+import { UserCreatePayloadDto } from '@modules/user/dto/user-create-payload.dto'
 import { ERole } from '@modules/common/enum/role.enum'
 
 interface BasicCommandOptions {
@@ -24,7 +24,7 @@ export class CreateSuperUserCommand extends CommandRunner {
 	}
 
 	async run(passedParam: string[], options?: BasicCommandOptions): Promise<void> {
-		const userCreateDtoBuilder = Builder(UserCreateDto)
+		const userCreateDtoBuilder = Builder(UserCreatePayloadDto)
 		userCreateDtoBuilder
 			.email(options.email)
 			.password(options.password)

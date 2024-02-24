@@ -1,55 +1,47 @@
 import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	JoinTable,
-	ManyToMany,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm'
 import { RoleEntity } from '@modules/role/entity/role.entity'
+import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
 
 @Entity({
-	name: 'user'
+    name: 'user',
 })
-export class UserEntity {
-	@PrimaryGeneratedColumn('uuid')
-	id: string
+export class UserEntity extends DefaultDatabaseEntity<UserEntity> {
+    @Column({ unique: true })
+    email: string
 
-	@Column({ unique: true })
-	email: string
+    @Column()
+    password: string
 
-	@Column()
-	password: string
+    @ManyToMany(
+        type => RoleEntity,
+        role => role.users,
+        {
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+            eager: true,
+        },
+    )
+    @JoinTable({
+        name: 'user_role',
+        joinColumn: {
+            name: 'user_id',
+            referencedColumnName: 'id',
+        },
+        inverseJoinColumn: {
+            name: 'role_id',
+            referencedColumnName: 'id',
+        },
+    })
+    roles: RoleEntity[]
 
-	@ManyToMany(
-		type => RoleEntity,
-		role => role.users,
-		{
-			onDelete: "CASCADE",
-			onUpdate: "CASCADE",
-			eager: true
-		}
-	)
-	@JoinTable({
-		name: 'user_role',
-		joinColumn: {
-			name: 'user_id',
-			referencedColumnName: 'id'
-		},
-		inverseJoinColumn: {
-			name: 'role_id',
-			referencedColumnName: 'id'
-		}
-	})
-	roles: RoleEntity[]
-
-	@CreateDateColumn({ name: 'created_at' })
-	createdAt: Date
-
-	@UpdateDateColumn({ name: 'updated_at' })
-	updatedAt: Date
-
-	@Column({default: false})
-	verified: boolean
+    @Column({ default: false })
+    verified: boolean
 }

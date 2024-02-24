@@ -16,14 +16,14 @@ import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
 import { MeResponseDto } from './dto/me-response.dto'
 import { Roles } from '../common/decorator/roles.decorator'
 import { ERole } from '../common/enum/role.enum'
-import { UserCreateDto } from './dto/user-create.dto'
+import { UserCreatePayloadDto } from './dto/user-create-payload.dto'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
-import { UserGetAllDto } from './dto/user-get-all.dto'
+import { UserGetAllPayloadDto } from './dto/user-get-all-payload.dto'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { IdParamDto } from '../common/dto/id-param.dto'
-import { UserUpdateMeDto } from '@modules/user/dto/user-update-me.dto'
+import { UserUpdateMePayloadDto } from '@modules/user/dto/user-update-me-payload.dto'
 import { UserResponseDto } from '@modules/user/dto/user-response.dto'
-import { UserUpdateDto } from '@modules/user/dto/user-update.dto'
+import { UserUpdatePayloadDto } from '@modules/user/dto/user-update-payload.dto'
 
 
 @ApiTags('user')
@@ -77,7 +77,7 @@ export class UserController {
 	@Patch('me')
 	async updateMe(
 		@ActiveUser('id') userId: string,
-		@Body() userUpdateMeDto: UserUpdateMeDto
+		@Body() userUpdateMeDto: UserUpdateMePayloadDto
 	): Promise<void> {
 		await this.usersService.updateMe(userId, userUpdateMeDto)
 	}
@@ -101,7 +101,7 @@ export class UserController {
 	@ApiBearerAuth()
 	@Roles(ERole.Moderator, ERole.Admin)
 	@Get()
-	async getAll(@Query() params: UserGetAllDto): Promise<UserGetAllResponseDto> {
+	async getAll(@Query() params: UserGetAllPayloadDto): Promise<UserGetAllResponseDto> {
 		return this.usersService.getAll(params)
 	}
 
@@ -130,7 +130,7 @@ export class UserController {
 	@Post()
 	async create(
 		@ActiveUser('roles') userRoles: ERole[],
-		@Body() userCreateDto: UserCreateDto
+		@Body() userCreateDto: UserCreatePayloadDto
 	): Promise<UserCreateResponseDto> {
 		return this.usersService.create(userCreateDto, userRoles)
 	}
@@ -149,7 +149,7 @@ export class UserController {
 	})
 	@ApiOkResponse({
 		description: 'User information',
-		type: UserGetAllResponseDto
+		type: UserResponseDto
 	})
 	@ApiOperation({
 		summary: 'User information endpoint',
@@ -187,7 +187,7 @@ export class UserController {
 	async update(
 		@ActiveUser('roles') userRoles: ERole[],
 		@Param() params: IdParamDto,
-		@Body() userUpdateDto: UserUpdateDto
+		@Body() userUpdateDto: UserUpdatePayloadDto
 	): Promise<void> {
 		await this.usersService.update(params.id, userUpdateDto, userRoles)
 	}

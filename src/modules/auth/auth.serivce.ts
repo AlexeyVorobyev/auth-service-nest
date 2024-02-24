@@ -12,13 +12,11 @@ import { DEFAULT_ROLE } from '../common/constant'
 import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserService } from '../user/user.service'
-import { UserCreateDto } from '../user/dto/user-create.dto'
+import { UserCreatePayloadDto } from '../user/dto/user-create-payload.dto'
 import { UserRepository } from '../user/repository/user.repository'
 import { EmailService } from '@modules/email/email.service'
 import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
 import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
-import { response } from 'express'
-import { UserUpdateDto } from '@modules/user/dto/user-update.dto'
 import { UserEntity } from '@modules/user/entity/user.entity'
 
 @Injectable()
@@ -40,7 +38,7 @@ export class AuthService {
     }
 
     async signUp(signUpDto: SignUpDto): Promise<void> {
-        const userCreateDtoBuilder = Builder(UserCreateDto)
+        const userCreateDtoBuilder = Builder(UserCreatePayloadDto)
         userCreateDtoBuilder
             .email(signUpDto.email)
             .password(signUpDto.password)
@@ -124,7 +122,7 @@ export class AuthService {
 
             await this.userRepository.update(
                 { id: userData.id },
-                Builder(UserEntity)
+                Builder<UserEntity>()
                     .verified(true)
                     .build(),
             )

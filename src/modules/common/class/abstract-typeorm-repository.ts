@@ -8,10 +8,9 @@ import { EPostgreSQLErrorCode } from '@modules/common/enum/EPostgreSQLErrorCode'
 
 export abstract class AbstractTypeormRepository<Entity> implements IRepository<Entity, FindOptionsWhere<Entity>, FindOptionsOrder<Entity>> {
 	protected constructor(
-		protected readonly typeormRepository: Repository<Entity>
+		readonly typeormRepository: Repository<Entity>
 	) {
 	}
-
 	async getAll(
 		filter?: FindOptionsWhere<Entity>,
 		order?: FindOptionsOrder<Entity>,

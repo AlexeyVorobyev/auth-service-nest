@@ -27,7 +27,7 @@ export class BaseRolesInitCommand extends CommandRunner {
                 await this.roleRepository.getOne({ name: role })
             }
             catch (error) {
-                const RoleEntityBuilder = Builder(RoleEntity)
+                const RoleEntityBuilder = Builder<RoleEntity>()
                 RoleEntityBuilder
                     .name(role)
                 await this.roleRepository.saveOne(RoleEntityBuilder.build())

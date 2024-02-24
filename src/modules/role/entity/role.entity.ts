@@ -1,14 +1,12 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { UserEntity } from '../../user/entity/user.entity'
 import { ERole } from '../../common/enum/role.enum'
+import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
 
 @Entity({
 	name: 'role'
 })
-export class RoleEntity {
-	@PrimaryGeneratedColumn('uuid')
-	id: string
-
+export class RoleEntity extends DefaultDatabaseEntity<RoleEntity> {
 	@Column({ unique: true })
 	name: ERole
 

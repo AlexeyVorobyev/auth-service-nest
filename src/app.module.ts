@@ -17,6 +17,7 @@ import { RoleGuard } from '@modules/role/guard/role.guard'
 import { EmailModule } from '@modules/email/email.module'
 import { CommandModule } from '@modules/command/command.module'
 import { validate } from '@modules/common/validation/env.validation'
+import { ExternalServiceModule } from '@modules/external-service/external-service.module'
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { validate } from '@modules/common/validation/env.validation'
         UserModule,
         AuthModule,
         EmailModule,
+        ExternalServiceModule,
         CommandModule,
     ],
     providers: [

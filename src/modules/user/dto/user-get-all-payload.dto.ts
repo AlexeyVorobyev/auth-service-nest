@@ -6,7 +6,7 @@ import { DatePeriodDto } from '@modules/common/dto/date-period.dto'
 import { GetAllDto } from '@modules/common/dto/get-all.dto'
 import { ERole } from '@modules/common/enum/role.enum'
 
-export class UserGetAllDto extends GetAllDto {
+export class UserGetAllPayloadDto extends GetAllDto {
 	@ApiProperty({
 		description: 'Filter by user role',
 		required: false,

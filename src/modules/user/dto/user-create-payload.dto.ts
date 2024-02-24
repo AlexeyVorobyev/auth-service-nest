@@ -1,15 +1,17 @@
+
 import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsBoolean, IsEmail, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { IsArray, IsEmail, IsNotEmpty, Matches, MaxLength, MinLength } from 'class-validator'
+import { Type } from 'class-transformer'
 import { ERole } from '@modules/common/enum/role.enum'
 
-export class UserUpdateDto {
+export class UserCreatePayloadDto {
 	@ApiProperty({
 		description: 'Email of user',
 		example: 'atest@email.com'
 	})
 	@IsEmail()
-	@IsOptional()
-	email?: string
+	@IsNotEmpty()
+	email: string
 
 	@ApiProperty({
 		description: 'Password of user',
@@ -24,8 +26,8 @@ export class UserUpdateDto {
 	@Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
 		message: 'password too weak'
 	})
-	@IsOptional()
-	password?: string
+	@IsNotEmpty()
+	password: string
 
 	@ApiProperty({
 		description: 'Roles of user',
@@ -33,16 +35,14 @@ export class UserUpdateDto {
 		type: [String],
 		enum: ERole
 	})
+	@Type(() => Array<ERole>)
 	@IsArray()
-	@IsOptional()
-	roles?: ERole[]
+	roles: ERole[]
 
 	@ApiProperty({
 		description: 'Defines are user verified',
 		example: true,
 		type: Boolean
 	})
-	@IsBoolean()
-	@IsOptional()
-	verified?: boolean
+	verified: boolean
 }

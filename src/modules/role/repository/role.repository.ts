@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { RoleEntity } from '../entity/role.entity'
-import { AbstractTypeormRepository } from '@modules/common/class/abstract-typeorm-repository'
+import {
+    AbstractTypeormRepositoryFactory,
+    Constructor,
+} from '@modules/common/factory/abstract-typeorm-repository.factory'
 
 @Injectable()
-export class RoleRepository extends AbstractTypeormRepository<RoleEntity> {
-	constructor(
-		@InjectRepository(RoleEntity) typeormRepository: Repository<RoleEntity>
-	) {
-		super(typeormRepository)
-	}
+export class RoleRepository extends AbstractTypeormRepositoryFactory<RoleEntity>(RoleEntity as Constructor<RoleEntity>) {
 }
