@@ -11,13 +11,13 @@ import { RoleModule } from '@modules/role/role.module'
 import { BcryptModule } from '@modules/bcrypt/bcrypt.module'
 import { UserModule } from '@modules/user/user.module'
 import { AuthModule } from '@modules/auth/auth.module'
-import { JwtAuthGuard } from '@modules/auth/guard/jwt-auth.guard'
-import { APP_GUARD } from '@nestjs/core'
-import { RoleGuard } from '@modules/role/guard/role.guard'
 import { EmailModule } from '@modules/email/email.module'
 import { CommandModule } from '@modules/command/command.module'
 import { validate } from '@modules/common/validation/env.validation'
 import { ExternalServiceModule } from '@modules/external-service/external-service.module'
+import { GraphqlModule } from '@modules/graphql/graphql.module'
+import { JwtRestAuthGuard } from '@modules/auth/guard/jwt-rest-auth.guard'
+import { RootResolver } from '@src/app.resolver'
 
 @Module({
     imports: [
@@ -36,17 +36,9 @@ import { ExternalServiceModule } from '@modules/external-service/external-servic
         EmailModule,
         ExternalServiceModule,
         CommandModule,
+        GraphqlModule,
     ],
-    providers: [
-        {
-            provide: APP_GUARD,
-            useClass: JwtAuthGuard,
-        },
-        {
-            provide: APP_GUARD,
-            useClass: RoleGuard,
-        },
-    ],
+    providers: [RootResolver]
 })
 export class AppModule {
 }

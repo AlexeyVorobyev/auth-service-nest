@@ -1,0 +1,185 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum ERole {
+  Admin
+  Moderator
+  User
+}
+
+enum ESortDirection {
+  ascending
+  descending
+}
+
+type Mutation {
+  user: TUserMutations!
+}
+
+type Query {
+  user: TUserQueries!
+}
+
+input TDatePeriodInput {
+  """End date"""
+  endDate: DateTime
+
+  """Start date"""
+  startDate: DateTime
+}
+
+input TIdInput {
+  """Identificatior property with uuid signature"""
+  id: String!
+}
+
+type TListMetaAttributes {
+  """Current page"""
+  currentPage: Int!
+
+  """Elements per page"""
+  elementsPerPage: Int!
+
+  """Total amount of elements in list"""
+  totalElements: Int!
+
+  """Total amount of pages in list"""
+  totalPages: Int!
+}
+
+input TSortInput {
+  """Name of column"""
+  columnName: String
+
+  """Sort direction"""
+  direction: ESortDirection
+}
+
+type TUserAttributes {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Email of user"""
+  email: String!
+
+  """Entity id in UUID format"""
+  id: ID!
+
+  """Updated roles"""
+  roles: [ERole!]!
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+
+  """Defines are user verified"""
+  verified: Boolean!
+}
+
+input TUserCreateInput {
+  """Email of user"""
+  email: String!
+
+  """Password of user"""
+  password: String!
+
+  """Roles of user"""
+  roles: [ERole!]!
+
+  """Defines are user verified"""
+  verified: Boolean!
+}
+
+type TUserListAttributes {
+  data: [TUserAttributes!]!
+  meta: TListMetaAttributes!
+}
+
+input TUserListInput {
+  """Datetime period criteria"""
+  createDatePeriod: [TDatePeriodInput!]
+
+  """
+  Filter by external service id. Multiple criteria allowed with OR functionality
+  """
+  externalServiceFilter: [String!]
+
+  """Filter by entity id. Multiple criteria allowed with OR functionality"""
+  id: [Int!]
+
+  """Page of list"""
+  page: Int = 0
+
+  """Amount of elements per page"""
+  perPage: Int = 8
+
+  """Filter by user role"""
+  roleFilter: ERole
+
+  """SimpleFilter"""
+  simpleFilter: String
+
+  """Sorting criteria"""
+  sort: [TSortInput!] = []
+
+  """Datetime period criteria"""
+  updateDatePeriod: [TDatePeriodInput!]
+}
+
+type TUserMutations {
+  """Provides functionality of creating users evading sign-up system."""
+  create(input: TUserCreateInput!): TUserAttributes!
+
+  """Provides functionality of deleting user by id."""
+  delete(input: TIdInput!): String!
+
+  """Provides functionality of editing user by id."""
+  update(input: TUserUpdateInput!): TUserAttributes!
+
+  """User with provided parameters exist in system."""
+  updateMe(input: TUserUpdateMeInput!): TUserAttributes!
+}
+
+type TUserQueries {
+  """Provides functionality of getting list of users."""
+  list(input: TUserListInput): TUserListAttributes!
+
+  """Provides functionality of getting information about user by id."""
+  record(idInput: TIdInput!): TUserAttributes!
+
+  """Provides user information."""
+  recordMe: TUserAttributes!
+}
+
+input TUserUpdateInput {
+  """Identificatior property with uuid signature"""
+  id: String!
+  payload: TUserUpdatePayloadInput!
+}
+
+input TUserUpdateMeInput {
+  """Email of user"""
+  email: String
+
+  """Password of user"""
+  password: String
+}
+
+input TUserUpdatePayloadInput {
+  """Email of user"""
+  email: String
+
+  """Password of user"""
+  password: String
+
+  """Roles of user"""
+  roles: [ERole!]
+
+  """Defines are user verified"""
+  verified: Boolean
+}

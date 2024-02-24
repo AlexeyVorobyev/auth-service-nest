@@ -12,12 +12,12 @@ import { DEFAULT_ROLE } from '../common/constant'
 import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserService } from '../user/user.service'
-import { UserCreatePayloadDto } from '../user/dto/user-create-payload.dto'
 import { UserRepository } from '../user/repository/user.repository'
 import { EmailService } from '@modules/email/email.service'
 import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
 import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
 import { UserEntity } from '@modules/user/entity/user.entity'
+import { UserCreateInput } from '@modules/user/input/user-create.input'
 
 @Injectable()
 export class AuthService {
@@ -38,13 +38,13 @@ export class AuthService {
     }
 
     async signUp(signUpDto: SignUpDto): Promise<void> {
-        const userCreateDtoBuilder = Builder(UserCreatePayloadDto)
-        userCreateDtoBuilder
+        const userCreateInput = Builder<UserCreateInput>()
+        userCreateInput
             .email(signUpDto.email)
             .password(signUpDto.password)
             .roles([DEFAULT_ROLE])
             .verified(false)
-        const userCreateResponseDtoInstance = await this.userService.create(userCreateDtoBuilder.build())
+        const userCreateResponseDtoInstance = await this.userService.create(userCreateInput.build())
 
         const userEntityInstance = await this.userRepository.getOne({ id: userCreateResponseDtoInstance.id })
         await this.emailService.sendUserConfirmation(

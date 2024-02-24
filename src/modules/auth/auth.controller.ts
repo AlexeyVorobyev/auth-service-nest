@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Res, ResponseDecoratorOptions } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Query,
+    Res,
+    ResponseDecoratorOptions,
+    UseGuards,
+} from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -17,6 +28,7 @@ import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { ActiveUser } from '../common/decorator/active-user.decorator'
 import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
 import { VerifyCallbackDto } from '@modules/auth/dto/verify-callback.dto'
+import { JwtRestAuthGuard } from '@modules/auth/guard/jwt-rest-auth.guard'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -98,6 +110,7 @@ export class AuthController {
         description: 'Allows to send confirmation email to current user.',
     })
     @ApiBearerAuth()
+    @UseGuards(JwtRestAuthGuard)
     @Post('resend-confirmation-email')
     async resendConfirmationMail(@ActiveUser('id') userId: string) {
         await this.authService.resendConfirmationMail(userId)

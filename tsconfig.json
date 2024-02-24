@@ -5,6 +5,7 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
@@ -25,6 +26,6 @@
       "@env/*": ["./env/*"],
       "~/*": ["*"]
     },
-    "jsx": "react-jsx",
+    "jsx": "react-jsx"
   }
 }

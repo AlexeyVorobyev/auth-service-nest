@@ -9,7 +9,7 @@ import {JwtAlexService} from '@modules/jwt/jwt-alex.service'
 import {EJwtStrategy} from '@modules/common/enum/jwt-strategy.enum'
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class JwtRestAuthGuard implements CanActivate {
 	constructor(
 		@Inject(JwtAlexService)
 		private readonly jwtAlexService: JwtAlexService,
@@ -19,14 +19,6 @@ export class JwtAuthGuard implements CanActivate {
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-			context.getHandler(),
-			context.getClass()
-		])
-		if (isPublic) {
-			return true
-		}
-
 		const request = context.switchToHttp().getRequest()
 		const token = this.getToken(request)
 		if (!token) {

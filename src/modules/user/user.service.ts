@@ -1,26 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { UserEntity } from './entity/user.entity'
-import { MeResponseDto } from './dto/me-response.dto'
 import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
-import { UserCreatePayloadDto } from './dto/user-create-payload.dto'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { ERole } from '../common/enum/role.enum'
 import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
-import { UserCreateResponseDto } from './dto/user-create-response.dto'
 import { UserRepository } from './repository/user.repository'
-import { UserGetAllPayloadDto } from './dto/user-get-all-payload.dto'
-import { Between, FindOptionsWhere, In, Like } from 'typeorm'
+import { FindOptionsWhere, In, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
-import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
-import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
 import { RoleRepository } from '../role/repository/role.repository'
-import { UserUpdatePayloadDto } from '@modules/user/dto/user-update-payload.dto'
-import { UserUpdateMePayloadDto } from '@modules/user/dto/user-update-me-payload.dto'
+import { UserUpdatePayloadInput } from '@modules/user/input/user-update-payload.input'
 import { Builder } from 'builder-pattern'
 import {
-    getAllPayloadDtoToFindOptionsWhereAdapter
+    getAllPayloadDtoToFindOptionsWhereAdapter,
 } from '@modules/common/adapter/get-all-payload-dto-to-find-options-where.adapter'
+import { userEntityToUserAttributesDtoAdapter } from '@modules/user/adapter/user-entity-to-user-attributes-dto.adapter'
+import { UserListInput } from '@modules/user/input/user-list.input'
+import { UserListAttributes } from '@modules/user/attributes/user-list.attributes'
+import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { ListMetaAttributes } from '@modules/graphql/attributes/list-meta.attributes'
+import { UserCreateInput } from '@modules/user/input/user-create.input'
+import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
 
 
 @Injectable()
@@ -35,61 +35,65 @@ export class UserService {
     ) {
     }
 
-    async getAll(params: UserGetAllPayloadDto): Promise<UserGetAllResponseDto> {
+    async getAll(input: UserListInput): Promise<UserListAttributes> {
         const filter: FindOptionsWhere<UserEntity> = {
-            ...getAllPayloadDtoToFindOptionsWhereAdapter(params),
-            email: params.simpleFilter ? Like(`%${params.simpleFilter}%`) : undefined,
+            ...getAllPayloadDtoToFindOptionsWhereAdapter(input),
+            email: input.simpleFilter ? Like(`%${input.simpleFilter}%`) : undefined,
             roles: {
-                name: params.roleFilter,
+                name: input.roleFilter,
             },
             externalServices: {
-                id: params.externalServiceFilter ? In(params.externalServiceFilter) : undefined,
+                id: input.externalServiceFilter ? In(input.externalServiceFilter) : undefined,
             },
         }
 
         const userEntityInstances = await this.userRepository.getAll(
             filter,
             sortDtoListFindOptionsOrderAdapter<UserEntity>(
-                params.sort,
+                input.sort,
                 Builder<UserEntity>()
                     .id(null).email(null).password(null)
                     .createdAt(null).updatedAt(null)
                     .verified(null)
                     .build(),
             ),
-            params.page,
-            params.perPage,
+            input.page,
+            input.perPage,
             { roles: true },
         )
 
         const totalElements = await this.userRepository.count(filter)
 
-        const userGetAllResponseDtoBuilder = Builder<UserGetAllResponseDto>()
-        userGetAllResponseDtoBuilder
-            .list(
+        const userListAttributesBuilder = Builder<UserListAttributes>()
+        userListAttributesBuilder
+            .data(
                 userEntityInstances
-                    .map((userEntityInstance: UserEntity) => userEntityToUserResponseDtoAdapter(userEntityInstance)),
+                    .map((userEntityInstance: UserEntity) => userEntityToUserAttributesDtoAdapter(userEntityInstance)),
             )
-            .currentPage(params.page)
-            .elementsPerPage(params.perPage)
-            .totalElements(totalElements)
-            .totalPages(Math.ceil(totalElements / params.perPage))
-        return userGetAllResponseDtoBuilder.build()
+            .meta(
+                Builder<ListMetaAttributes>()
+                    .currentPage(input.page)
+                    .elementsPerPage(input.perPage)
+                    .totalElements(totalElements)
+                    .totalPages(Math.ceil(totalElements / input.perPage))
+                    .build(),
+            )
+        return userListAttributesBuilder.build()
     }
 
-    async getOne(id: string): Promise<MeResponseDto> {
+    async getOne(id: string): Promise<UserAttributes> {
         const user = await this.userRepository.getOne({ id: id })
-        return userEntityToUserResponseDtoAdapter(user)
+        return userEntityToUserAttributesDtoAdapter(user)
     }
 
     async create(
-        userCreateDto: UserCreatePayloadDto,
+        input: UserCreateInput,
         userRoles?: ERole[],
-    ): Promise<UserCreateResponseDto> {
+    ): Promise<UserAttributes> {
         if (userRoles) {
             const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
             const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
-            userCreateDto.roles.forEach((role: ERole) => {
+            input.roles.forEach((role: ERole) => {
                 if (!allowedRolesAssertion.includes(role)) {
                     Builder(UniversalError)
                         .messages([
@@ -102,26 +106,26 @@ export class UserService {
             })
         }
         const roleInstances = await Promise.all(
-            userCreateDto.roles.map((role: ERole) => {
+            input.roles.map((role: ERole) => {
                 return this.roleRepository.getOne({ name: role })
             }),
         )
 
         const userBuilder = Builder<UserEntity>()
         userBuilder
-            .email(userCreateDto.email)
-            .password(await this.bcryptService.hash(userCreateDto.password))
-            .roles(roleInstances).verified(userCreateDto.verified)
+            .email(input.email)
+            .password(await this.bcryptService.hash(input.password))
+            .roles(roleInstances).verified(input.verified)
         const createdUserEntityInstance = await this.userRepository.saveOne(userBuilder.build())
 
-        return userEntityToUserResponseDtoAdapter(createdUserEntityInstance)
+        return userEntityToUserAttributesDtoAdapter(createdUserEntityInstance)
     }
 
     async update(
         id: string,
-        userUpdateDto: UserUpdatePayloadDto,
+        input: UserUpdatePayloadInput,
         userRoles: ERole[],
-    ) {
+    ): Promise<UserAttributes> {
         const userToUpdate = await this.userRepository.getOne({ id: id })
         const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
 
@@ -163,8 +167,8 @@ export class UserService {
                     .build().throw()
             }
         })
-        const roleInstances = userUpdateDto.roles ? await Promise.all(
-            userUpdateDto.roles.map((role: ERole) => {
+        const roleInstances = input.roles ? await Promise.all(
+            input.roles.map((role: ERole) => {
                 return this.roleRepository.getOne({ name: role })
             }),
         ) : undefined
@@ -172,11 +176,13 @@ export class UserService {
         await this.userRepository.update(
             { id: id },
             Builder<UserEntity>()
-                .email(userUpdateDto?.email || undefined)
-                .password(userUpdateDto?.password ? await this.bcryptService.hash(userUpdateDto.password) : undefined)
-                .roles(roleInstances).verified(userUpdateDto?.verified || undefined)
+                .email(input?.email || undefined)
+                .password(input?.password ? await this.bcryptService.hash(input.password) : undefined)
+                .roles(roleInstances).verified(input?.verified || undefined)
                 .build(),
         )
+
+        return await this.getOne(id)
     }
 
     async delete(id: string) {
@@ -191,16 +197,19 @@ export class UserService {
                 .build().throw()
         } else {
             await this.userRepository.delete({ id: id })
+            return id
         }
     }
 
-    async updateMe(id: string, userUpdateMeDto: UserUpdateMePayloadDto) {
+    async updateMe(id: string, input: UserUpdateMeInput): Promise<UserAttributes> {
         await this.userRepository.update(
             { id: id },
             Builder<UserEntity>()
-                .email(userUpdateMeDto?.email || undefined)
-                .password(userUpdateMeDto?.password ? await this.bcryptService.hash(userUpdateMeDto.password) : undefined)
+                .email(input?.email || undefined)
+                .password(input?.password ? await this.bcryptService.hash(input.password) : undefined)
                 .build(),
         )
+
+        return await this.getOne(id)
     }
 }

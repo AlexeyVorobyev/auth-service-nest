@@ -5,12 +5,13 @@ import { JwtVerifyModule } from '@modules/jwt/strategy/JwtVerify.module'
 import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
 
 @Module({
-	imports: [
-		JwtAccessModule,
-		JwtRefreshModule,
-		JwtVerifyModule
-	],
-	providers: [JwtAlexService],
-	exports: [JwtAlexService]
+    imports: [
+        JwtAccessModule,
+        JwtRefreshModule,
+        JwtVerifyModule,
+    ],
+    providers: [JwtAlexService],
+    exports: [JwtAlexService],
 })
-export class JwtAlexModule {}
+export class JwtAlexModule {
+}

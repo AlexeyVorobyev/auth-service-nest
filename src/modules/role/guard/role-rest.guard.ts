@@ -8,7 +8,7 @@ import { UniversalError } from '../../common/class/universal-error'
 import { EUniversalExceptionType } from '../../common/enum/exceptions'
 
 @Injectable()
-export class RoleGuard implements CanActivate {
+export class RoleRestGuard implements CanActivate {
 	constructor(
 		private reflector: Reflector,
 	) {
@@ -17,7 +17,7 @@ export class RoleGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const requiredRoles = this.reflector.getAllAndOverride<ERole[]>(REQUEST_ROLES_KEY, [
 			context.getHandler(),
-			context.getClass()
+			context.getClass(),
 		])
 		if (!requiredRoles) {
 			return true
