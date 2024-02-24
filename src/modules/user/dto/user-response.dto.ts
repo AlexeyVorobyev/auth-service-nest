@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { ERole } from '@modules/common/enum/role.enum'
+import { ExternalServiceResponseDto } from '@modules/external-service/dto/external-service-response.dto'
 
 export class UserResponseDto {
 	@ApiProperty({
@@ -31,6 +32,12 @@ export class UserResponseDto {
 		enum: ERole
 	})
 	roles: ERole[]
+
+	@ApiProperty({
+		description: 'User external services',
+		type: [ExternalServiceResponseDto],
+	})
+	externalServices: ExternalServiceResponseDto[]
 
 	@ApiProperty({
 		description: 'Defines are user verified',

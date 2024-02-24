@@ -29,7 +29,7 @@ export class UserRepository extends AbstractTypeormRepositoryFactory<UserEntity>
             )
         } catch (error) {
             if (error.code === EPostgreSQLErrorCode.uniqueViolation) {
-                Builder<UniversalError>()
+                Builder(UniversalError)
                     .messages([
                         `Entity with provided fields already exist`,
                         error?.detail,
@@ -37,7 +37,7 @@ export class UserRepository extends AbstractTypeormRepositoryFactory<UserEntity>
                     .exceptionBaseClass(EUniversalExceptionType.conflict)
                     .build().throw()
             } else {
-                Builder<UniversalError>()
+                Builder(UniversalError)
                     .messages([
                         `Internal server error`,
                         error?.message,

@@ -20,7 +20,7 @@ export class UniversalError implements IUniversalError {
 		this.exceptionBaseClass = exceptionBaseClass
 	}
 
-	throw() {
+	public throw() {
 		switch (this.exceptionBaseClass) {
 			case EUniversalExceptionType.unauthorized:
 				throw new UnauthorizedException(this.messages)

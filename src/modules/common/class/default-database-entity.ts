@@ -4,8 +4,8 @@ import { databaseDateTransformer } from '@modules/database/utils/database-date.t
 /**
  *  Class, that describes base structure of every table in a database
  * */
-export abstract class DefaultDatabaseEntity<ExtendedEntity> {
-    protected constructor(data?: Partial<ExtendedEntity>) {
+export abstract class DefaultDatabaseEntity<Entity> {
+    protected constructor(data?: Partial<Entity>) {
         if (data) Object.assign(this, data)
     }
 

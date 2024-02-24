@@ -1,12 +1,9 @@
-import { IsOptional, ValidateNested } from 'class-validator'
-import { Transform } from 'class-transformer'
+import { IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { apiPayloadDatePeriodDtoAdapter } from '@modules/common/adapter/api-payload-date-period-dto.adapter'
-import { DatePeriodDto } from '@modules/common/dto/date-period.dto'
-import { GetAllDto } from '@modules/common/dto/get-all.dto'
+import { GetAllPayloadDto } from '@modules/common/dto/get-all-payload.dto'
 import { ERole } from '@modules/common/enum/role.enum'
 
-export class UserGetAllPayloadDto extends GetAllDto {
+export class UserGetAllPayloadDto extends GetAllPayloadDto {
 	@ApiProperty({
 		description: 'Filter by user role',
 		required: false,
@@ -17,24 +14,10 @@ export class UserGetAllPayloadDto extends GetAllDto {
 	roleFilter?: ERole
 
 	@ApiProperty({
+		description: 'Filter by external service id. Multiple criteria allowed with OR functionality',
 		required: false,
-		type: String,
-		description: 'Datetime period criteria in the format: [createDateStart],[createDateEnd]',
-		example: `${new Date(new Date().setFullYear(2023,11,1)).toISOString()},${new Date().toISOString()}`
+		type: [String],
 	})
-	@ValidateNested()
 	@IsOptional()
-	@Transform(apiPayloadDatePeriodDtoAdapter)
-	createDatePeriod?: DatePeriodDto
-
-	@ApiProperty({
-		required: false,
-		type: String,
-		description: 'Datetime period criteria in the format: [updateDateStart],[updateDateEnd]',
-		example: `${new Date(new Date().setFullYear(2023,11,1)).toISOString()},${new Date().toISOString()}`
-	})
-	@ValidateNested()
-	@IsOptional()
-	@Transform(apiPayloadDatePeriodDtoAdapter)
-	updateDatePeriod?: DatePeriodDto
+	externalServiceFilter?: string[]
 }

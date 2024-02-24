@@ -10,7 +10,7 @@ import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserCreateResponseDto } from './dto/user-create-response.dto'
 import { UserRepository } from './repository/user.repository'
 import { UserGetAllPayloadDto } from './dto/user-get-all-payload.dto'
-import { Between, FindOptionsWhere, Like } from 'typeorm'
+import { Between, FindOptionsWhere, In, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
 import { userEntityToUserResponseDtoAdapter } from './adapter/user-entity-to-user-response-dto.adapter'
 import { UserGetAllResponseDto } from './dto/user-get-all-response.dto'
@@ -18,6 +18,9 @@ import { RoleRepository } from '../role/repository/role.repository'
 import { UserUpdatePayloadDto } from '@modules/user/dto/user-update-payload.dto'
 import { UserUpdateMePayloadDto } from '@modules/user/dto/user-update-me-payload.dto'
 import { Builder } from 'builder-pattern'
+import {
+    getAllPayloadDtoToFindOptionsWhereAdapter
+} from '@modules/common/adapter/get-all-payload-dto-to-find-options-where.adapter'
 
 
 @Injectable()
@@ -34,17 +37,13 @@ export class UserService {
 
     async getAll(params: UserGetAllPayloadDto): Promise<UserGetAllResponseDto> {
         const filter: FindOptionsWhere<UserEntity> = {
-            email: Like(`%${params.simpleFilter}%`),
-            createdAt: params.createDatePeriod ? Between(
-                params.createDatePeriod.startDate || new Date(new Date().setFullYear(0, 0, 0)),
-                params.createDatePeriod.endDate || new Date(new Date().setFullYear(10000, 0, 0)),
-            ) : undefined,
-            updatedAt: params.updateDatePeriod ? Between(
-                params.updateDatePeriod.startDate || new Date(new Date().setFullYear(0, 0, 0)),
-                params.updateDatePeriod.endDate || new Date(new Date().setFullYear(10000, 0, 0)),
-            ) : undefined,
+            ...getAllPayloadDtoToFindOptionsWhereAdapter(params),
+            email: params.simpleFilter ? Like(`%${params.simpleFilter}%`) : undefined,
             roles: {
                 name: params.roleFilter,
+            },
+            externalServices: {
+                id: params.externalServiceFilter ? In(params.externalServiceFilter) : undefined,
             },
         }
 
@@ -92,7 +91,7 @@ export class UserService {
             const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
             userCreateDto.roles.forEach((role: ERole) => {
                 if (!allowedRolesAssertion.includes(role)) {
-                    Builder<UniversalError>()
+                    Builder(UniversalError)
                         .messages([
                             FORBIDDEN_ERROR_MESSAGE,
                             `You cant create user with ${role} role`,

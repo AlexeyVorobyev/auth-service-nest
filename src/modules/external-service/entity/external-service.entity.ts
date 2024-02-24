@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
+import { UserEntity } from '@modules/user/entity/user.entity'
 
 /**
  *  Entity describing external services, that uses this auth system
@@ -18,4 +19,14 @@ export class ExternalServiceEntity extends DefaultDatabaseEntity<ExternalService
         unique: true
     })
     recognitionKey: string
+
+    @ManyToMany(
+        type => UserEntity,
+        user => user.externalServices,
+        {
+            onDelete: 'NO ACTION',
+            onUpdate: 'NO ACTION'
+        }
+    )
+    users: UserEntity[]
 }
