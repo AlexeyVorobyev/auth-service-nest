@@ -9,11 +9,13 @@ export class ExternalServiceResponseDto {
 
     @ApiProperty({
         description: 'Created date of external service',
+        type: Date
     })
     createdAt: Date
 
     @ApiProperty({
         description: 'Updated date of external service',
+        type: Date
     })
     updatedAt: Date
 
@@ -31,4 +33,10 @@ export class ExternalServiceResponseDto {
         description: 'Recognition key of external service',
     })
     recognitionKey?: string
+
+    @ApiProperty({
+        description: 'Roles, which works in that particular service',
+        type: [String]
+    })
+    roles?: string
 }

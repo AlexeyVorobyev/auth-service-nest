@@ -5,23 +5,27 @@ import { ExternalServiceResponseDto } from '@modules/external-service/dto/extern
 export class UserResponseDto {
 	@ApiProperty({
 		description: 'ID of user',
-		example: '89c018cc-8a77-4dbd-94e1-dbaa710a2a9c'
+		example: '89c018cc-8a77-4dbd-94e1-dbaa710a2a9c',
+		type: String
 	})
 	id: string
 
 	@ApiProperty({
 		description: 'Email of user',
-		example: 'atest@email.com'
+		example: 'atest@email.com',
+		type: String
 	})
 	email: string
 
 	@ApiProperty({
-		description: 'Created date of user'
+		description: 'Created date of user',
+		type: Date
 	})
 	createdAt: Date
 
 	@ApiProperty({
-		description: 'Updated date of user'
+		description: 'Updated date of user',
+		type: Date
 	})
 	updatedAt: Date
 

@@ -1,15 +1,8 @@
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinTable,
-    ManyToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-} from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
 import { RoleEntity } from '@modules/role/entity/role.entity'
 import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
 import { ExternalServiceEntity } from '@modules/external-service/entity/external-service.entity'
+import { ExternalRoleEntity } from '@modules/role/entity/external-role.entity'
 
 @Entity({
     name: 'user',
@@ -25,8 +18,8 @@ export class UserEntity extends DefaultDatabaseEntity<UserEntity> {
     verified: boolean
 
     @ManyToMany(
-        type => RoleEntity,
-        role => role.users,
+        () => RoleEntity,
+        (role) => role.users,
         {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
@@ -47,8 +40,8 @@ export class UserEntity extends DefaultDatabaseEntity<UserEntity> {
     roles: RoleEntity[]
 
     @ManyToMany(
-        type => ExternalServiceEntity,
-        externalService => externalService.users,
+        () => ExternalServiceEntity,
+        (externalService) => externalService.users,
         {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
@@ -67,4 +60,15 @@ export class UserEntity extends DefaultDatabaseEntity<UserEntity> {
         },
     })
     externalServices: ExternalServiceEntity[]
+
+    @OneToMany(
+        () => ExternalRoleEntity,
+        (externalRole) => externalRole.users,
+        {
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+            eager: true,
+        },
+    )
+    externalRoles: ExternalRoleEntity[]
 }
