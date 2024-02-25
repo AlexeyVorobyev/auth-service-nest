@@ -7,7 +7,6 @@ import { IActiveUserData } from '@modules/common/interface/active-user-data.inte
 import { UniversalError } from '@modules/common/class/universal-error'
 import { EUniversalExceptionType } from '@modules/common/enum/exceptions'
 import { UserEntity } from '@modules/user/entity/user.entity'
-import { RoleEntity } from '@modules/role/entity/role.entity'
 
 export class JwtAlexService {
 	constructor(
@@ -48,7 +47,7 @@ export class JwtAlexService {
 		const jwtStrategyPayload: IActiveUserData = {
 			id: user.id,
 			email: user.email,
-			roles: user.roles.map((roleEntity: RoleEntity) => roleEntity.name),
+			role: user.role,
 			tokenId: randomUUID()
 		}
 

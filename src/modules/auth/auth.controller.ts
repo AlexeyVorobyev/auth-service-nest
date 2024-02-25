@@ -28,7 +28,7 @@ import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { ActiveUser } from '../common/decorator/active-user.decorator'
 import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
 import { VerifyCallbackDto } from '@modules/auth/dto/verify-callback.dto'
-import { JwtRestAuthGuard } from '@modules/auth/guard/jwt-rest-auth.guard'
+import { JwtRestAuthGuard } from '@modules/common/guard/jwt-rest-auth.guard'
 
 @ApiTags('auth')
 @Controller('auth')

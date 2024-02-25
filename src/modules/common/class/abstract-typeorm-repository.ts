@@ -12,7 +12,7 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 	) {
 	}
 	async getAll(
-		filter?: FindOptionsWhere<Entity>,
+		filter?: FindOptionsWhere<Entity> | FindOptionsWhere<Entity>[],
 		order?: FindOptionsOrder<Entity>,
 		page?: number,
 		perPage?: number,
@@ -41,7 +41,7 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 		return entityInstance
 	}
 
-	async count(filter?: FindOptionsWhere<Entity>): Promise<number> {
+	async count(filter?: FindOptionsWhere<Entity> | FindOptionsWhere<Entity>[]): Promise<number> {
 		return await this.typeormRepository.count({
 			where: filter || undefined
 		})

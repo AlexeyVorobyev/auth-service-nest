@@ -1,5 +1,15 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import {
+	IsArray,
+	IsBoolean,
+	IsEmail, IsEnum,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	Matches,
+	MaxLength,
+	MinLength,
+} from 'class-validator'
 import { ERole } from '@modules/common/enum/role.enum'
 import { Type } from 'class-transformer'
 
@@ -29,14 +39,14 @@ export class UserUpdatePayloadInput {
 	})
 	password?: string
 
-	@Type(() => Array<ERole>)
-	@IsArray()
+	@Type(() => String)
+	@IsString()
+	@IsEnum(ERole)
 	@IsOptional()
-	@Field(() => [ERole], {
-		description: 'Roles of user',
-		nullable: true
+	@Field(() => ERole!, {
+		description: 'Role of user',
 	})
-	roles?: ERole[]
+	role?: ERole
 
 	@Field(() => Boolean, {
 		description: 'Defines are user verified',

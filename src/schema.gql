@@ -19,10 +19,12 @@ enum ESortDirection {
 }
 
 type Mutation {
+  externalService: TExternalServiceMutations!
   user: TUserMutations!
 }
 
 type Query {
+  externalService: TExternalServiceQueries!
   user: TUserQueries!
 }
 
@@ -32,6 +34,80 @@ input TDatePeriodInput {
 
   """Start date"""
   startDate: DateTime
+}
+
+type TExternalServiceAttributes {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Description of external service"""
+  description: String
+
+  """Entity id in UUID format"""
+  id: ID!
+
+  """Name of external service"""
+  name: String!
+
+  """Recognition key of external service"""
+  recognitionKey: String
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+}
+
+input TExternalServiceCreateInput {
+  """Description of external service"""
+  description: String
+
+  """Name of external service"""
+  name: String!
+
+  """Recognition key of external service"""
+  recognitionKey: String
+}
+
+type TExternalServiceListAttributes {
+  data: [TExternalServiceAttributes!]!
+  meta: TListMetaAttributes!
+}
+
+input TExternalServiceListInput {
+  """Datetime period criteria"""
+  createDatePeriod: [TDatePeriodInput!]
+
+  """Filter by entity id. Multiple criteria allowed with OR functionality"""
+  id: [Int!]
+
+  """Page of list"""
+  page: Int = 0
+
+  """Amount of elements per page"""
+  perPage: Int = 8
+
+  """SimpleFilter"""
+  simpleFilter: String
+
+  """Sorting criteria"""
+  sort: [TSortInput!] = []
+
+  """Datetime period criteria"""
+  updateDatePeriod: [TDatePeriodInput!]
+}
+
+type TExternalServiceMutations {
+  """Provides functionality of creating external service."""
+  create(input: TExternalServiceCreateInput!): TExternalServiceAttributes!
+}
+
+type TExternalServiceQueries {
+  """Provides functionality of getting list of external services."""
+  list(input: TExternalServiceListInput): TExternalServiceListAttributes!
+
+  """
+  Provides functionality of getting information about external service by id.
+  """
+  record(idInput: TIdInput!): TUserAttributes!
 }
 
 input TIdInput {
@@ -71,8 +147,8 @@ type TUserAttributes {
   """Entity id in UUID format"""
   id: ID!
 
-  """Updated roles"""
-  roles: [ERole!]!
+  """Role of user"""
+  role: ERole!
 
   """Entity last update datetime"""
   updatedAt: DateTime!
@@ -88,8 +164,8 @@ input TUserCreateInput {
   """Password of user"""
   password: String!
 
-  """Roles of user"""
-  roles: [ERole!]!
+  """Role of user"""
+  role: ERole!
 
   """Defines are user verified"""
   verified: Boolean!
@@ -177,8 +253,8 @@ input TUserUpdatePayloadInput {
   """Password of user"""
   password: String
 
-  """Roles of user"""
-  roles: [ERole!]
+  """Role of user"""
+  role: ERole!
 
   """Defines are user verified"""
   verified: Boolean

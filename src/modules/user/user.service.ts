@@ -8,12 +8,8 @@ import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserRepository } from './repository/user.repository'
 import { FindOptionsWhere, In, Like } from 'typeorm'
 import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
-import { RoleRepository } from '../role/repository/role.repository'
 import { UserUpdatePayloadInput } from '@modules/user/input/user-update-payload.input'
 import { Builder } from 'builder-pattern'
-import {
-    getAllPayloadDtoToFindOptionsWhereAdapter,
-} from '@modules/common/adapter/get-all-payload-dto-to-find-options-where.adapter'
 import { userEntityToUserAttributesDtoAdapter } from '@modules/user/adapter/user-entity-to-user-attributes-dto.adapter'
 import { UserListInput } from '@modules/user/input/user-list.input'
 import { UserListAttributes } from '@modules/user/attributes/user-list.attributes'
@@ -21,6 +17,7 @@ import { UserAttributes } from '@modules/user/attributes/user-attributes'
 import { ListMetaAttributes } from '@modules/graphql/attributes/list-meta.attributes'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
+import { listInputToFindOptionsWhereAdapter } from '@modules/graphql/adapter/list-input-to-find-options-where.adapter'
 
 
 @Injectable()
@@ -30,18 +27,14 @@ export class UserService {
         private readonly userRepository: UserRepository,
         @Inject(BcryptService)
         private readonly bcryptService: BcryptService,
-        @Inject(RoleRepository)
-        private readonly roleRepository: RoleRepository,
     ) {
     }
 
     async getAll(input: UserListInput): Promise<UserListAttributes> {
         const filter: FindOptionsWhere<UserEntity> = {
-            ...getAllPayloadDtoToFindOptionsWhereAdapter(input),
+            ...listInputToFindOptionsWhereAdapter(input),
             email: input.simpleFilter ? Like(`%${input.simpleFilter}%`) : undefined,
-            roles: {
-                name: input.roleFilter,
-            },
+            role: input.roleFilter,
             externalServices: {
                 id: input.externalServiceFilter ? In(input.externalServiceFilter) : undefined,
             },
@@ -54,12 +47,15 @@ export class UserService {
                 Builder<UserEntity>()
                     .id(null).email(null).password(null)
                     .createdAt(null).updatedAt(null)
-                    .verified(null)
+                    .verified(null).role(null)
                     .build(),
             ),
             input.page,
             input.perPage,
-            { roles: true },
+            {
+                externalServices: true,
+                externalRoles: true
+            },
         )
 
         const totalElements = await this.userRepository.count(filter)
@@ -86,36 +82,42 @@ export class UserService {
         return userEntityToUserAttributesDtoAdapter(user)
     }
 
+    /**
+     * Check user roles and says which users can you update and create
+     * */
+    private checkPrivileges(role: ERole): ERole[] {
+        if (role === ERole.Admin) {
+            return [ERole.Moderator, ERole.User]
+        } else if (role === ERole.Moderator) {
+            return [ERole.User]
+        } else {
+            return []
+        }
+    }
+
     async create(
         input: UserCreateInput,
-        userRoles?: ERole[],
+        role?: ERole,
     ): Promise<UserAttributes> {
-        if (userRoles) {
-            const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
-            const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
-            input.roles.forEach((role: ERole) => {
-                if (!allowedRolesAssertion.includes(role)) {
-                    Builder(UniversalError)
-                        .messages([
-                            FORBIDDEN_ERROR_MESSAGE,
-                            `You cant create user with ${role} role`,
-                        ])
-                        .exceptionBaseClass(EUniversalExceptionType.forbidden)
-                        .build().throw()
-                }
-            })
+        if (role) {
+            const allowedRoles = this.checkPrivileges(role)
+
+            if (!allowedRoles.includes(input.role)) {
+                Builder(UniversalError)
+                    .messages([
+                        FORBIDDEN_ERROR_MESSAGE,
+                        `You cant create user with ${role} role`,
+                    ])
+                    .exceptionBaseClass(EUniversalExceptionType.forbidden)
+                    .build().throw()
+            }
         }
-        const roleInstances = await Promise.all(
-            input.roles.map((role: ERole) => {
-                return this.roleRepository.getOne({ name: role })
-            }),
-        )
 
         const userBuilder = Builder<UserEntity>()
         userBuilder
             .email(input.email)
             .password(await this.bcryptService.hash(input.password))
-            .roles(roleInstances).verified(input.verified)
+            .role(input.role).verified(input.verified)
         const createdUserEntityInstance = await this.userRepository.saveOne(userBuilder.build())
 
         return userEntityToUserAttributesDtoAdapter(createdUserEntityInstance)
@@ -124,81 +126,66 @@ export class UserService {
     async update(
         id: string,
         input: UserUpdatePayloadInput,
-        userRoles: ERole[],
+        role: ERole,
     ): Promise<UserAttributes> {
         const userToUpdate = await this.userRepository.getOne({ id: id })
-        const activeUserHighRole = userRoles.includes(ERole.Admin) ? ERole.Admin : ERole.Moderator
 
-        if (activeUserHighRole === ERole.Admin) {
-            if (userToUpdate.roles.map((role) => role.name).includes(ERole.Admin)) {
-                Builder(UniversalError)
-                    .messages([
-                        FORBIDDEN_ERROR_MESSAGE,
-                        'You cant update other admins',
-                    ])
-                    .exceptionBaseClass(EUniversalExceptionType.forbidden)
-                    .build().throw()
-            }
-        }
-        if (activeUserHighRole === ERole.Moderator) {
-            if (
-                userToUpdate.roles.map((role) => role.name).includes(ERole.Admin)
-                || userToUpdate.roles.map((role) => role.name).includes(ERole.Moderator)
-            ) {
-                Builder(UniversalError)
-                    .messages([
-                        FORBIDDEN_ERROR_MESSAGE,
-                        'You cant update other admins or moderators',
-                    ])
-                    .exceptionBaseClass(EUniversalExceptionType.forbidden)
-                    .build().throw()
-            }
+        const allowedRoles = this.checkPrivileges(role)
+
+        /**Check for possibility of user update*/
+        if (!allowedRoles.includes(userToUpdate.role)) {
+            Builder(UniversalError)
+                .messages([
+                    FORBIDDEN_ERROR_MESSAGE,
+                    'You cant update this user',
+                ])
+                .exceptionBaseClass(EUniversalExceptionType.forbidden)
+                .build().throw()
         }
 
-        const allowedRolesAssertion = activeUserHighRole === ERole.Admin ? [ERole.User, ERole.Moderator] : [ERole.User]
-        userToUpdate.roles.forEach((role) => {
-            if (!allowedRolesAssertion.includes(role.name)) {
-                Builder(UniversalError)
-                    .messages([
-                        FORBIDDEN_ERROR_MESSAGE,
-                        `You cant assign to user ${role.name} role`,
-                    ])
-                    .exceptionBaseClass(EUniversalExceptionType.forbidden)
-                    .build().throw()
-            }
-        })
-        const roleInstances = input.roles ? await Promise.all(
-            input.roles.map((role: ERole) => {
-                return this.roleRepository.getOne({ name: role })
-            }),
-        ) : undefined
+        /**Check for possibility to assign this role*/
+        if (!allowedRoles.includes(input.role)) {
+            Builder(UniversalError)
+                .messages([
+                    FORBIDDEN_ERROR_MESSAGE,
+                    `You cant create user with ${input.role} role`,
+                ])
+                .exceptionBaseClass(EUniversalExceptionType.forbidden)
+                .build().throw()
+        }
 
         await this.userRepository.update(
             { id: id },
             Builder<UserEntity>()
                 .email(input?.email || undefined)
                 .password(input?.password ? await this.bcryptService.hash(input.password) : undefined)
-                .roles(roleInstances).verified(input?.verified || undefined)
+                .role(input.role).verified(input?.verified || undefined)
                 .build(),
         )
 
         return await this.getOne(id)
     }
 
-    async delete(id: string) {
+    async delete(
+        id: string,
+        role: ERole,
+    ) {
         const userToDelete = await this.userRepository.getOne({ id: id })
-        if (userToDelete.roles.map((role) => role.name).includes(ERole.Admin)) {
+
+        const allowedUsersToDelete = this.checkPrivileges(role)
+
+        if (!allowedUsersToDelete.includes(userToDelete.role)) {
             Builder(UniversalError)
                 .messages([
                     FORBIDDEN_ERROR_MESSAGE,
-                    'You cant delete other admins',
+                    `You cant delete user with ${userToDelete.role} role`,
                 ])
                 .exceptionBaseClass(EUniversalExceptionType.forbidden)
                 .build().throw()
-        } else {
-            await this.userRepository.delete({ id: id })
-            return id
         }
+
+        await this.userRepository.delete({ id: id })
+        return id
     }
 
     async updateMe(id: string, input: UserUpdateMeInput): Promise<UserAttributes> {

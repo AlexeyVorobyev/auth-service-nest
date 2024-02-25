@@ -24,7 +24,7 @@ export class UserRepository extends AbstractTypeormRepositoryFactory<UserEntity>
                     .verified(entity?.verified || userInstance?.verified)
                     .password(entity?.password || userInstance.password)
                     .email(entity?.email || userInstance.email)
-                    .roles(entity?.roles || userInstance.roles)
+                    .role(entity?.role || userInstance.role)
                     .build(),
             )
         } catch (error) {

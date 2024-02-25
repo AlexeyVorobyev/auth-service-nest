@@ -2,19 +2,17 @@ import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/commo
 import { Reflector } from '@nestjs/core'
 import { Request } from 'express'
 import { Builder } from 'builder-pattern'
-import {EUniversalExceptionType} from '@modules/common/enum/exceptions'
-import {UniversalError} from '@modules/common/class/universal-error'
-import {IS_PUBLIC_KEY, REQUEST_USER_KEY} from '@modules/common/constant'
-import {JwtAlexService} from '@modules/jwt/jwt-alex.service'
-import {EJwtStrategy} from '@modules/common/enum/jwt-strategy.enum'
+import { EUniversalExceptionType } from '@modules/common/enum/exceptions'
+import { UniversalError } from '@modules/common/class/universal-error'
+import { REQUEST_USER_KEY } from '@modules/common/constant'
+import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
+import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
 
 @Injectable()
 export class JwtRestAuthGuard implements CanActivate {
 	constructor(
 		@Inject(JwtAlexService)
 		private readonly jwtAlexService: JwtAlexService,
-		@Inject(Reflector)
-		private readonly reflector: Reflector
 	) {
 	}
 

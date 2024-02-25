@@ -7,7 +7,7 @@ import JwtConfig from '@modules/common/config/jwt.config'
 import emailConfig from '@modules/common/config/email.config'
 import { DatabaseModule } from '@modules/database/database.module'
 import { JwtAlexModule } from '@modules/jwt/jwt-alex.module'
-import { RoleModule } from '@modules/role/role.module'
+import { ExternalRoleModule } from '@modules/external-role/external-role.module'
 import { BcryptModule } from '@modules/bcrypt/bcrypt.module'
 import { UserModule } from '@modules/user/user.module'
 import { AuthModule } from '@modules/auth/auth.module'
@@ -16,7 +16,7 @@ import { CommandModule } from '@modules/command/command.module'
 import { validate } from '@modules/common/validation/env.validation'
 import { ExternalServiceModule } from '@modules/external-service/external-service.module'
 import { GraphqlModule } from '@modules/graphql/graphql.module'
-import { JwtRestAuthGuard } from '@modules/auth/guard/jwt-rest-auth.guard'
+import { JwtRestAuthGuard } from '@modules/common/guard/jwt-rest-auth.guard'
 import { RootResolver } from '@src/app.resolver'
 
 @Module({
@@ -29,7 +29,7 @@ import { RootResolver } from '@src/app.resolver'
         }),
         DatabaseModule,
         JwtAlexModule,
-        RoleModule,
+        ExternalRoleModule,
         BcryptModule,
         UserModule,
         AuthModule,

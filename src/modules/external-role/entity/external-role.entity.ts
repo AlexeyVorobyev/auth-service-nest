@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm'
 import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
 import { ExternalServiceEntity } from '@modules/external-service/entity/external-service.entity'
 import { UserEntity } from '@modules/user/entity/user.entity'
@@ -25,14 +25,13 @@ export class ExternalRoleEntity extends DefaultDatabaseEntity<ExternalRoleEntity
     @JoinColumn({name: 'external_service_id'})
     externalServices: ExternalServiceEntity[]
 
-    @ManyToOne(
-        () => UserEntity,
-        (user) => user.externalRoles,
+    @ManyToMany(
+        type => UserEntity,
+        user => user.externalRoles,
         {
             onDelete: 'NO ACTION',
             onUpdate: 'NO ACTION',
         },
     )
-    @JoinColumn({name: 'user_id'})
     users: UserEntity[]
 }

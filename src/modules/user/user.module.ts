@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserEntity } from './entity/user.entity'
 import { UserService } from './user.service'
-import { RoleModule } from '../role/role.module'
+import { ExternalRoleModule } from '@modules/external-role/external-role.module'
 import { BcryptModule } from '../bcrypt/bcrypt.module'
 import { UserRepository } from './repository/user.repository'
 import { UserQueryResolver } from '@modules/user/resolver/user-query.resolver'
@@ -12,7 +12,7 @@ import { UserMutationResolver } from '@modules/user/resolver/user-mutation.resol
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserEntity]),
-        RoleModule,
+        ExternalRoleModule,
         BcryptModule,
         JwtAlexModule,
     ],

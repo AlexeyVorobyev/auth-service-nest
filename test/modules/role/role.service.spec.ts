@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { RoleService } from '@modules/role/role.service'
+import { ExternalRoleService } from '@modules/external-role/external-role.service'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { RoleEntity } from '@modules/role/entity/role.entity'
+import { RoleEntity } from '@modules/external-role/entity/role.entity'
 import { Repository } from 'typeorm'
 
 
 describe('roleService', () => {
-    let service: RoleService
+    let service: ExternalRoleService
     let roleRepository: Repository<RoleEntity>
 
     const token = getRepositoryToken(RoleEntity)
@@ -14,7 +14,7 @@ describe('roleService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                RoleService,
+                ExternalRoleService,
                 {
                     provide: token,
                     useValue: {
@@ -25,7 +25,7 @@ describe('roleService', () => {
             ],
         }).compile()
 
-        service = module.get<RoleService>(RoleService)
+        service = module.get<ExternalRoleService>(ExternalRoleService)
         roleRepository = module.get<Repository<RoleEntity>>(token)
     })
 

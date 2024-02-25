@@ -42,7 +42,7 @@ export class AuthService {
         userCreateInput
             .email(signUpDto.email)
             .password(signUpDto.password)
-            .roles([DEFAULT_ROLE])
+            .role(DEFAULT_ROLE)
             .verified(false)
         const userCreateResponseDtoInstance = await this.userService.create(userCreateInput.build())
 

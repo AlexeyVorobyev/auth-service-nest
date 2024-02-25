@@ -9,10 +9,10 @@ export class UserAttributes extends DefaultAttributes {
     })
     email: string
 
-    @Field(() => [ERole]!, {
-        description: 'Updated roles',
+    @Field(() => ERole!, {
+        description: 'Role of user',
     })
-    roles: ERole[]
+    role: ERole
 
     // @ApiProperty({
     //     description: 'User external services',

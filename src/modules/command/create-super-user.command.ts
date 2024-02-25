@@ -28,7 +28,7 @@ export class CreateSuperUserCommand extends CommandRunner {
 		userCreateInput
 			.email(options.email)
 			.password(options.password)
-			.roles([ERole.User, ERole.Moderator, ERole.Admin])
+			.role(ERole.Admin)
 		await this.userService.create(userCreateInput.build())
 	}
 

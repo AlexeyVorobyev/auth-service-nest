@@ -1,14 +1,14 @@
-import { Args, Mutation, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
+import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
 import { UserAttributes } from '@modules/user/attributes/user-attributes'
 import { UserService } from '@modules/user/user.service'
 import { Inject, UseGuards } from '@nestjs/common'
 import { IdInput } from '@modules/graphql/input/id.input'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 import { UserUpdateInput } from '@modules/user/input/user-update.input'
-import { JwtGraphQLAuthGuard } from '@modules/auth/guard/jwt-graphql-auth.guard'
+import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
 import { Roles } from '@modules/common/decorator/roles.decorator'
 import { ERole } from '@modules/common/enum/role.enum'
-import { RoleGraphQLGuard } from '@modules/role/guard/role-graphql.guard'
+import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { ActiveGraphQLUser } from '@modules/common/decorator/active-grahql-user-decorator'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
 
@@ -44,22 +44,23 @@ export class UserMutationResolver {
         description: 'Provides functionality of editing user by id.',
     })
     async update(
-        @ActiveGraphQLUser('roles') roles: ERole[],
+        @ActiveGraphQLUser('role') role: ERole,
         @Args('input') input: UserUpdateInput,
     ) {
-        return await this.userService.update(input.id, input.payload, roles)
+        return await this.userService.update(input.id, input.payload, role)
     }
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
-    @Roles(ERole.Admin)
+    @Roles(ERole.Admin, ERole.Moderator)
     @ResolveField(() => String, {
         name: 'delete',
         description: 'Provides functionality of deleting user by id.',
     })
     async delete(
+        @ActiveGraphQLUser('role') role: ERole,
         @Args('input') input: IdInput,
     ) {
-        return await this.userService.delete(input.id)
+        return await this.userService.delete(input.id, role)
     }
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
