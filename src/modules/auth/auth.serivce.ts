@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
-import jwtConfig from '../common/config/jwt.config'
+import jwtConfig from '../config/config/jwt.config'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
@@ -14,8 +14,8 @@ import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { UserService } from '../user/user.service'
 import { UserRepository } from '../user/repository/user.repository'
 import { EmailService } from '@modules/email/email.service'
-import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
-import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
+import { JwtService } from '@modules/jwt/jwt.service'
+import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
 import { UserEntity } from '@modules/user/entity/user.entity'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 
@@ -32,8 +32,8 @@ export class AuthService {
         private readonly userRepository: UserRepository,
         @Inject(EmailService)
         private readonly emailService: EmailService,
-        @Inject(JwtAlexService)
-        private readonly jwtAlexService: JwtAlexService,
+        @Inject(JwtService)
+        private readonly jwtAlexService: JwtService,
     ) {
     }
 

@@ -1,21 +1,21 @@
 import { Inject } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
+import { JwtService as JwtNestService } from '@nestjs/jwt'
 import { randomUUID } from 'crypto'
 import { Builder } from 'builder-pattern'
-import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
+import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
 import { IActiveUserData } from '@modules/common/interface/active-user-data.interface'
 import { UniversalError } from '@modules/common/class/universal-error'
 import { EUniversalExceptionType } from '@modules/common/enum/exceptions'
 import { UserEntity } from '@modules/user/entity/user.entity'
 
-export class JwtAlexService {
+export class JwtService {
 	constructor(
 		@Inject('JwtAccessService')
-		private readonly jwtAccessService: JwtService,
+		private readonly jwtAccessService: JwtNestService,
 		@Inject('JwtRefreshService')
-		private readonly jwtRefreshService: JwtService,
+		private readonly jwtRefreshService: JwtNestService,
 		@Inject('JwtVerifyService')
-		private readonly jwtVerifyService: JwtService
+		private readonly jwtVerifyService: JwtNestService
 	) {
 	}
 

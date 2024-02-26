@@ -1,6 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 import { ERole } from '@modules/common/enum/role.enum'
 import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
+import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
 
 @ObjectType('TUserAttributes')
 export class UserAttributes extends DefaultAttributes {
@@ -14,11 +16,10 @@ export class UserAttributes extends DefaultAttributes {
     })
     role: ERole
 
-    // @ApiProperty({
-    //     description: 'User external services',
-    //     type: [ExternalServiceResponseDto],
-    // })
-    // externalServices: ExternalServiceResponseDto[]
+    @Field(() => [ExternalServiceAttributes]!, {
+        description: 'External services of user',
+    })
+    externalServices: ExternalServiceAttributes[]
 
     @Field(() => Boolean!, {
         description: 'Defines are user verified',

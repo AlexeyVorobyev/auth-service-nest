@@ -63,16 +63,27 @@ export class UserMutationResolver {
         return await this.userService.delete(input.id, role)
     }
 
-    @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
-    @Roles(ERole.Moderator, ERole.Admin)
+    @UseGuards(JwtGraphQLAuthGuard)
     @ResolveField(() => UserAttributes, {
         name: 'updateMe',
-        description: 'User with provided parameters exist in system.',
+        description: 'Provides functionality of updating yourself',
     })
     async updateMe(
         @ActiveGraphQLUser('id') userId: string,
         @Args('input') input: UserUpdateMeInput,
     ) {
         return await this.userService.updateMe(userId, input)
+    }
+
+    @UseGuards(JwtGraphQLAuthGuard)
+    @Roles(ERole.Admin, ERole.Moderator)
+    @ResolveField(() => String, {
+        name: 'deleteMe',
+        description: 'Provides functionality of deleting yourself',
+    })
+    async deleteMe(
+        @ActiveGraphQLUser('id') userId: string,
+    ) {
+        return await this.userService.deleteMe(userId)
     }
 }

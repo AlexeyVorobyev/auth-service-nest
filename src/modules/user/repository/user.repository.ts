@@ -1,13 +1,13 @@
 import { UserEntity } from '../entity/user.entity'
 import { FindOptionsWhere } from 'typeorm'
 import { Builder } from 'builder-pattern'
-import { EPostgreSQLErrorCode } from '@modules/common/enum/EPostgreSQLErrorCode'
+import { EPostgreSQLErrorCode } from '@modules/database/enum/postgresql-error-code.enum'
 import { UniversalError } from '@modules/common/class/universal-error'
 import { EUniversalExceptionType } from '@modules/common/enum/exceptions'
 import {
     AbstractTypeormRepositoryFactory,
     Constructor,
-} from '@modules/common/factory/abstract-typeorm-repository.factory'
+} from '@modules/database/factory/abstract-typeorm-repository.factory'
 
 export class UserRepository extends AbstractTypeormRepositoryFactory<UserEntity>(UserEntity as Constructor<UserEntity>) {
     /**

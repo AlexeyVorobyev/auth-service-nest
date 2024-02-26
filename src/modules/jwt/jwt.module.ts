@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { JwtAccessModule } from '@modules/jwt/strategy/JwtAccess.module'
 import { JwtRefreshModule } from '@modules/jwt/strategy/JwtRefresh.module'
 import { JwtVerifyModule } from '@modules/jwt/strategy/JwtVerify.module'
-import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
+import { JwtService } from '@modules/jwt/jwt.service'
 
 @Module({
     imports: [
@@ -10,8 +10,8 @@ import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
         JwtRefreshModule,
         JwtVerifyModule,
     ],
-    providers: [JwtAlexService],
-    exports: [JwtAlexService],
+    providers: [JwtService],
+    exports: [JwtService],
 })
-export class JwtAlexModule {
+export class JwtModule {
 }

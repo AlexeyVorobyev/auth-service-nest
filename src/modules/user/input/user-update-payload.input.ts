@@ -5,13 +5,14 @@ import {
 	IsEmail, IsEnum,
 	IsNotEmpty,
 	IsOptional,
-	IsString,
+	IsString, IsUUID,
 	Matches,
 	MaxLength,
-	MinLength,
+	MinLength, ValidateNested,
 } from 'class-validator'
 import { ERole } from '@modules/common/enum/role.enum'
 import { Type } from 'class-transformer'
+import { UserExternalRolesInput } from '@modules/user/input/user-external-roles.input'
 
 @InputType('TUserUpdatePayloadInput')
 export class UserUpdatePayloadInput {
@@ -45,6 +46,7 @@ export class UserUpdatePayloadInput {
 	@IsOptional()
 	@Field(() => ERole!, {
 		description: 'Role of user',
+		nullable: true
 	})
 	role?: ERole
 
@@ -55,4 +57,23 @@ export class UserUpdatePayloadInput {
 	@IsOptional()
 	@IsBoolean()
 	verified?: boolean
+
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	@IsUUID(4, { each: true })
+	@Field(() => [String], {
+		description: 'Defines user connected external services',
+		nullable: true
+	})
+	externalServicesId?: string[]
+
+	@IsOptional()
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Field(() => [UserExternalRolesInput], {
+		description: 'Defines user external roles in connected external services',
+		nullable: true
+	})
+	externalRoles?: UserExternalRolesInput[]
 }

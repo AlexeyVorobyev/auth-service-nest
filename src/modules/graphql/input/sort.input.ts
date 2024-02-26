@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, Matches } from 'class-validator'
-import { ESortDirection } from '@modules/common/enum/ESortDirection.enum'
+import { ESortDirection } from '@modules/graphql/enum/sort-direction.enum'
 import { Field, InputType, ObjectType, registerEnumType } from '@nestjs/graphql'
 
 registerEnumType(ESortDirection, { name: 'ESortDirection' })

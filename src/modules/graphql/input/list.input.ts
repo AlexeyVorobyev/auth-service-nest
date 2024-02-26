@@ -1,9 +1,9 @@
-import { IsNumber, IsOptional, IsPositive, IsString, Min } from 'class-validator'
-import { Transform, Type } from 'class-transformer'
-import { apiPayloadDatePeriodDtoAdapter } from '@modules/common/adapter/api-payload-date-period-dto.adapter'
+import { IsNumber, IsOptional, IsPositive, IsString, IsUUID, Min, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
 import { Field, InputType, Int } from '@nestjs/graphql'
 import { DatePeriodInput } from '@modules/graphql/input/date-period.input'
 import { SortInput } from '@modules/graphql/input/sort.input'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
 @InputType()
 export abstract class ListInput {
@@ -36,15 +36,17 @@ export abstract class ListInput {
     simpleFilter?: string
 
     @IsOptional()
-    @Field(() => [Int], {
+    @IsUUID(4, { each: true })
+    @IsString({ each: true })
+    @Field(() => [UUID], {
         description: 'Filter by entity id. Multiple criteria allowed with OR functionality',
         nullable: true,
     })
     id?: string[]
 
     @IsOptional()
-    @Transform((transformPayload) => apiPayloadDatePeriodDtoAdapter(transformPayload.value))
-    @Field(() => [DatePeriodInput], {
+    @ValidateNested()
+    @Field(() => DatePeriodInput, {
         description: 'Datetime period criteria',
         name: 'createDatePeriod',
         nullable: true,
@@ -52,8 +54,8 @@ export abstract class ListInput {
     createDatePeriod?: DatePeriodInput
 
     @IsOptional()
-    @Transform((transformPayload) => apiPayloadDatePeriodDtoAdapter(transformPayload.value))
-    @Field(() => [DatePeriodInput], {
+    @ValidateNested()
+    @Field(() => DatePeriodInput, {
         description: 'Datetime period criteria',
         name: 'updateDatePeriod',
         nullable: true,
@@ -61,6 +63,7 @@ export abstract class ListInput {
     updateDatePeriod?: DatePeriodInput
 
     @IsOptional()
+    @ValidateNested({ each: true })
     @Field(() => [SortInput], {
         description: 'Sorting criteria',
         nullable: true,

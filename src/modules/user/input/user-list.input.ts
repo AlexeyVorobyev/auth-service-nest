@@ -8,7 +8,7 @@ export class UserListInput extends ListInput {
     @IsOptional()
     @IsEnum(ERole)
     @Field(() => ERole, {
-        description: 'Filter by user role',
+        description: 'Filter by user internal role',
         nullable: true
     })
     roleFilter?: ERole
@@ -20,4 +20,12 @@ export class UserListInput extends ListInput {
         nullable: true
     })
     externalServiceFilter?: string[]
+
+    @IsArray()
+    @IsOptional()
+    @Field(() => [String], {
+        description: 'Filter by external role id. Multiple criteria allowed with OR functionality',
+        nullable: true
+    })
+    externalRoleFilter?: string[]
 }

@@ -8,6 +8,7 @@ import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
 import { ExternalServiceCreateInput } from '@modules/external-service/input/external-service-create.input'
 import { ExternalServiceUpdateInput } from '@modules/external-service/input/external-service-update.input'
+import { IdInput } from '@modules/graphql/input/id.input'
 
 
 @ObjectType('TExternalServiceMutations')
@@ -34,27 +35,27 @@ export class ExternalServiceMutationResolver {
         return await this.externalServiceService.create(input)
     }
 
-    // @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
-    // @Roles(ERole.Admin, ERole.Moderator)
-    // @ResolveField(() => ExternalServiceAttributes, {
-    //     name: 'update',
-    //     description: 'Provides functionality of editing external service by id.',
-    // })
-    // async update(
-    //     @Args('input') input: ExternalServiceUpdateInput,
-    // ) {
-    //     return await this.externalServiceService.update(input.id, input.payload)
-    // }
-    //
-    // @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
-    // @Roles(ERole.Admin)
-    // @ResolveField(() => String, {
-    //     name: 'delete',
-    //     description: 'Provides functionality of deleting user by id.',
-    // })
-    // async delete(
-    //     @Args('input') input: IdInput,
-    // ) {
-    //     return await this.userService.delete(input.id)
-    // }
+    @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
+    @Roles(ERole.Admin, ERole.Moderator)
+    @ResolveField(() => ExternalServiceAttributes, {
+        name: 'update',
+        description: 'Provides functionality of editing external service by id.',
+    })
+    async update(
+        @Args('input') input: ExternalServiceUpdateInput,
+    ) {
+        return await this.externalServiceService.update(input.id, input.payload)
+    }
+
+    @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
+    @Roles(ERole.Admin, ERole.Moderator)
+    @ResolveField(() => String, {
+        name: 'delete',
+        description: 'Provides functionality of deleting external service by id.',
+    })
+    async delete(
+        @Args('input') input: IdInput,
+    ) {
+        return await this.externalServiceService.delete(input.id)
+    }
 }

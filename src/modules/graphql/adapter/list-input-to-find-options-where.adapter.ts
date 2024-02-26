@@ -1,6 +1,5 @@
 import { Between, FindOptionsWhere, In } from 'typeorm'
-import { GetAllPayloadDto } from '@modules/common/dto/get-all-payload.dto'
-import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
+import { DefaultDatabaseEntity } from '@modules/database/entity/default-database.entity'
 import { ListInput } from '@modules/graphql/input/list.input'
 
 /**

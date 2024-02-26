@@ -1,4 +1,4 @@
-import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
+import { DefaultDatabaseEntity } from '@modules/database/entity/default-database.entity'
 import { Field, ID, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()

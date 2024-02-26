@@ -6,19 +6,19 @@ import { UserEntity } from '../user/entity/user.entity'
 import { ExternalRoleModule } from '@modules/external-role/external-role.module'
 import { UserModule } from '../user/user.module'
 import { BcryptModule } from '../bcrypt/bcrypt.module'
-import {JwtAlexModule} from '@modules/jwt/jwt-alex.module'
-import {EmailModule} from '@modules/email/email.module'
+import { JwtModule } from '@modules/jwt/jwt.module'
+import { EmailModule } from '@modules/email/email.module'
 
 @Module({
-	imports: [
-		TypeOrmModule.forFeature([UserEntity]),
-		JwtAlexModule,
-		ExternalRoleModule,
-		UserModule,
-		BcryptModule,
-		EmailModule
-	],
-	controllers: [AuthController],
-	providers: [AuthService],
+    imports: [
+        TypeOrmModule.forFeature([UserEntity]),
+        JwtModule,
+        UserModule,
+        BcryptModule,
+        EmailModule,
+    ],
+    controllers: [AuthController],
+    providers: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule {
+}

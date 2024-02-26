@@ -1,4 +1,4 @@
-import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
+import { Args, Field, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
 import { Inject, UseGuards } from '@nestjs/common'
 import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
 import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
@@ -12,6 +12,7 @@ import { IdInput } from '@modules/graphql/input/id.input'
 
 @ObjectType('TExternalServiceQueries')
 export class ExternalServiceQueries {
+    id: string
 }
 
 @Resolver(() => ExternalServiceQueries)

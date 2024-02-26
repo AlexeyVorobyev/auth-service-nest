@@ -2,9 +2,9 @@ import { IRepository } from '../interface/repository.interface'
 import { FindOptionsOrder, FindOptionsRelations, FindOptionsWhere, Repository } from 'typeorm'
 import { instanceToPlain } from 'class-transformer'
 import { Builder } from 'builder-pattern'
-import { UniversalError } from './universal-error'
-import { EUniversalExceptionType } from '../enum/exceptions'
-import { EPostgreSQLErrorCode } from '@modules/common/enum/EPostgreSQLErrorCode'
+import { UniversalError } from '../../common/class/universal-error'
+import { EUniversalExceptionType } from '../../common/enum/exceptions'
+import { EPostgreSQLErrorCode } from '@modules/database/enum/postgresql-error-code.enum'
 
 export abstract class AbstractTypeormRepository<Entity> implements IRepository<Entity, FindOptionsWhere<Entity>, FindOptionsOrder<Entity>> {
 	protected constructor(

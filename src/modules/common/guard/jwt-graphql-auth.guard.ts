@@ -4,15 +4,15 @@ import { Builder } from 'builder-pattern'
 import { EUniversalExceptionType } from '@modules/common/enum/exceptions'
 import { UniversalError } from '@modules/common/class/universal-error'
 import { REQUEST_USER_KEY } from '@modules/common/constant'
-import { JwtAlexService } from '@modules/jwt/jwt-alex.service'
-import { EJwtStrategy } from '@modules/common/enum/jwt-strategy.enum'
+import { JwtService } from '@modules/jwt/jwt.service'
+import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
 import { GqlExecutionContext } from '@nestjs/graphql'
 
 @Injectable()
 export class JwtGraphQLAuthGuard implements CanActivate {
     constructor(
-        @Inject(JwtAlexService)
-        private readonly jwtAlexService: JwtAlexService,
+        @Inject(JwtService)
+        private readonly jwtAlexService: JwtService,
     ) {
     }
 

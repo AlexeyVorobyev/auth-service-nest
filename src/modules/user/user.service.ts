@@ -4,10 +4,9 @@ import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { ERole } from '../common/enum/role.enum'
-import { FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
+import { FORBIDDEN_ERROR_MESSAGE, UNLIMITED_PER_PAGE } from '../common/constant'
 import { UserRepository } from './repository/user.repository'
 import { FindOptionsWhere, In, Like } from 'typeorm'
-import { sortDtoListFindOptionsOrderAdapter } from '../common/adapter/sort-dto-list-find-options-order.adapter'
 import { UserUpdatePayloadInput } from '@modules/user/input/user-update-payload.input'
 import { Builder } from 'builder-pattern'
 import { userEntityToUserAttributesDtoAdapter } from '@modules/user/adapter/user-entity-to-user-attributes-dto.adapter'
@@ -18,6 +17,12 @@ import { ListMetaAttributes } from '@modules/graphql/attributes/list-meta.attrib
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
 import { listInputToFindOptionsWhereAdapter } from '@modules/graphql/adapter/list-input-to-find-options-where.adapter'
+import {
+    sortInputListToFindOptionsOrderAdapter,
+} from '@modules/graphql/adapter/sort-input-list-to-find-options-order.adapter'
+import { ExternalServiceEntity } from '@modules/external-service/entity/external-service.entity'
+import { ExternalServiceService } from '@modules/external-service/external-service.service'
+import { ExternalServiceRepository } from '@modules/external-service/repository/external-service.repository'
 
 
 @Injectable()
@@ -25,6 +30,8 @@ export class UserService {
     constructor(
         @Inject(UserRepository)
         private readonly userRepository: UserRepository,
+        @Inject(ExternalServiceService)
+        private readonly externalServiceRepository: ExternalServiceRepository,
         @Inject(BcryptService)
         private readonly bcryptService: BcryptService,
     ) {
@@ -32,17 +39,20 @@ export class UserService {
 
     async getAll(input: UserListInput): Promise<UserListAttributes> {
         const filter: FindOptionsWhere<UserEntity> = {
-            ...listInputToFindOptionsWhereAdapter(input),
+            ...listInputToFindOptionsWhereAdapter<UserEntity>(input),
             email: input.simpleFilter ? Like(`%${input.simpleFilter}%`) : undefined,
             role: input.roleFilter,
             externalServices: {
                 id: input.externalServiceFilter ? In(input.externalServiceFilter) : undefined,
             },
+            externalRoles: {
+                id: input.externalRoleFilter ? In(input.externalRoleFilter) : undefined,
+            },
         }
 
         const userEntityInstances = await this.userRepository.getAll(
             filter,
-            sortDtoListFindOptionsOrderAdapter<UserEntity>(
+            sortInputListToFindOptionsOrderAdapter<UserEntity>(
                 input.sort,
                 Builder<UserEntity>()
                     .id(null).email(null).password(null)
@@ -54,7 +64,7 @@ export class UserService {
             input.perPage,
             {
                 externalServices: true,
-                externalRoles: true
+                externalRoles: true,
             },
         )
 
@@ -132,6 +142,8 @@ export class UserService {
 
         const allowedRoles = this.checkPrivileges(role)
 
+        console.log(allowedRoles)
+
         /**Check for possibility of user update*/
         if (!allowedRoles.includes(userToUpdate.role)) {
             Builder(UniversalError)
@@ -144,7 +156,7 @@ export class UserService {
         }
 
         /**Check for possibility to assign this role*/
-        if (!allowedRoles.includes(input.role)) {
+        if (input.role && !allowedRoles.includes(input.role)) {
             Builder(UniversalError)
                 .messages([
                     FORBIDDEN_ERROR_MESSAGE,
@@ -154,12 +166,19 @@ export class UserService {
                 .build().throw()
         }
 
+        const externalServicesToUpdate = input.externalServicesId
+            ? await this.externalServiceRepository.getAll({
+                id: In(input.externalServicesId),
+            })
+            : undefined
+
         await this.userRepository.update(
             { id: id },
             Builder<UserEntity>()
                 .email(input?.email || undefined)
                 .password(input?.password ? await this.bcryptService.hash(input.password) : undefined)
                 .role(input.role).verified(input?.verified || undefined)
+                .externalServices(externalServicesToUpdate)
                 .build(),
         )
 
@@ -198,5 +217,11 @@ export class UserService {
         )
 
         return await this.getOne(id)
+    }
+
+    async deleteMe(id: string): Promise<string> {
+        await this.userRepository.delete({ id: id })
+
+        return id
     }
 }

@@ -1,5 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
-import { DefaultDatabaseEntity } from '@modules/common/class/default-database-entity'
+import { DefaultDatabaseEntity } from '@modules/database/entity/default-database.entity'
 import { UserEntity } from '@modules/user/entity/user.entity'
 import { ExternalRoleEntity } from '@modules/external-role/entity/external-role.entity'
 

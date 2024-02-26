@@ -1,11 +1,9 @@
-import { Field, InputType } from '@nestjs/graphql'
+import { InputType } from '@nestjs/graphql'
 import {
     ExternalServiceUpdatePayloadInput,
 } from '@modules/external-service/input/external-service-update-payload.input'
-import { UpdateEntityInput } from '@modules/graphql/input/update-entity.input'
+import { UpdateEntityInputFactory } from '@modules/graphql/factory/update-entity-input.factory'
 
 @InputType('TExternalServiceUpdateInput')
-export class ExternalServiceUpdateInput extends UpdateEntityInput<ExternalServiceUpdatePayloadInput> {
-    // @Field(() => ExternalServiceUpdatePayloadInput)
-    // payload: ExternalServiceUpdatePayloadInput
+export class ExternalServiceUpdateInput extends UpdateEntityInputFactory<ExternalServiceUpdatePayloadInput>(ExternalServiceUpdatePayloadInput) {
 }

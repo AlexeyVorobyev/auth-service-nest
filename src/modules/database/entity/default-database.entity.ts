@@ -1,5 +1,5 @@
 import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { databaseDateTransformer } from '@modules/database/utils/database-date.transformer'
+import { databaseDateTransformer } from '@modules/database/transformer/database-date.transformer'
 
 /**
  *  Class, that describes base structure of every table in a database

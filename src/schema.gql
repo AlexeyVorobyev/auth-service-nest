@@ -74,10 +74,10 @@ type TExternalServiceListAttributes {
 
 input TExternalServiceListInput {
   """Datetime period criteria"""
-  createDatePeriod: [TDatePeriodInput!]
+  createDatePeriod: TDatePeriodInput
 
   """Filter by entity id. Multiple criteria allowed with OR functionality"""
-  id: [Int!]
+  id: [UUID!]
 
   """Page of list"""
   page: Int = 0
@@ -92,12 +92,18 @@ input TExternalServiceListInput {
   sort: [TSortInput!] = []
 
   """Datetime period criteria"""
-  updateDatePeriod: [TDatePeriodInput!]
+  updateDatePeriod: TDatePeriodInput
 }
 
 type TExternalServiceMutations {
   """Provides functionality of creating external service."""
   create(input: TExternalServiceCreateInput!): TExternalServiceAttributes!
+
+  """Provides functionality of deleting external service by id."""
+  delete(input: TIdInput!): String!
+
+  """Provides functionality of editing external service by id."""
+  update(input: TExternalServiceUpdateInput!): TExternalServiceAttributes!
 }
 
 type TExternalServiceQueries {
@@ -110,9 +116,26 @@ type TExternalServiceQueries {
   record(idInput: TIdInput!): TUserAttributes!
 }
 
-input TIdInput {
+input TExternalServiceUpdateInput {
   """Identificatior property with uuid signature"""
-  id: String!
+  id: UUID!
+  payload: TExternalServiceUpdatePayloadInput!
+}
+
+input TExternalServiceUpdatePayloadInput {
+  """Description of external service"""
+  description: String
+
+  """Name of external service"""
+  name: String!
+
+  """Recognition key of external service"""
+  recognitionKey: String
+}
+
+input TIdInput {
+  """Identification property with uuid signature"""
+  id: UUID!
 }
 
 type TListMetaAttributes {
@@ -144,6 +167,9 @@ type TUserAttributes {
   """Email of user"""
   email: String!
 
+  """External services of user"""
+  externalServices: [TExternalServiceAttributes!]!
+
   """Entity id in UUID format"""
   id: ID!
 
@@ -161,6 +187,12 @@ input TUserCreateInput {
   """Email of user"""
   email: String!
 
+  """Defines user external roles in connected external services"""
+  externalRoles: [TUserExternalRolesInput!]
+
+  """Defines user connected external services"""
+  externalServicesId: [String!]
+
   """Password of user"""
   password: String!
 
@@ -171,6 +203,11 @@ input TUserCreateInput {
   verified: Boolean!
 }
 
+input TUserExternalRolesInput {
+  externalRolesId: [String!]!
+  externalServiceId: String!
+}
+
 type TUserListAttributes {
   data: [TUserAttributes!]!
   meta: TListMetaAttributes!
@@ -178,7 +215,12 @@ type TUserListAttributes {
 
 input TUserListInput {
   """Datetime period criteria"""
-  createDatePeriod: [TDatePeriodInput!]
+  createDatePeriod: TDatePeriodInput
+
+  """
+  Filter by external role id. Multiple criteria allowed with OR functionality
+  """
+  externalRoleFilter: [String!]
 
   """
   Filter by external service id. Multiple criteria allowed with OR functionality
@@ -186,7 +228,7 @@ input TUserListInput {
   externalServiceFilter: [String!]
 
   """Filter by entity id. Multiple criteria allowed with OR functionality"""
-  id: [Int!]
+  id: [UUID!]
 
   """Page of list"""
   page: Int = 0
@@ -194,7 +236,7 @@ input TUserListInput {
   """Amount of elements per page"""
   perPage: Int = 8
 
-  """Filter by user role"""
+  """Filter by user internal role"""
   roleFilter: ERole
 
   """SimpleFilter"""
@@ -204,7 +246,7 @@ input TUserListInput {
   sort: [TSortInput!] = []
 
   """Datetime period criteria"""
-  updateDatePeriod: [TDatePeriodInput!]
+  updateDatePeriod: TDatePeriodInput
 }
 
 type TUserMutations {
@@ -214,10 +256,13 @@ type TUserMutations {
   """Provides functionality of deleting user by id."""
   delete(input: TIdInput!): String!
 
+  """Provides functionality of deleting yourself"""
+  deleteMe: String!
+
   """Provides functionality of editing user by id."""
   update(input: TUserUpdateInput!): TUserAttributes!
 
-  """User with provided parameters exist in system."""
+  """Provides functionality of updating yourself"""
   updateMe(input: TUserUpdateMeInput!): TUserAttributes!
 }
 
@@ -234,7 +279,7 @@ type TUserQueries {
 
 input TUserUpdateInput {
   """Identificatior property with uuid signature"""
-  id: String!
+  id: UUID!
   payload: TUserUpdatePayloadInput!
 }
 
@@ -250,12 +295,21 @@ input TUserUpdatePayloadInput {
   """Email of user"""
   email: String
 
+  """Defines user external roles in connected external services"""
+  externalRoles: [TUserExternalRolesInput!]
+
+  """Defines user connected external services"""
+  externalServicesId: [String!]
+
   """Password of user"""
   password: String
 
   """Role of user"""
-  role: ERole!
+  role: ERole
 
   """Defines are user verified"""
   verified: Boolean
 }
+
+"""UUID Validator"""
+scalar UUID
