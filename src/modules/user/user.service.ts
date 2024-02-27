@@ -4,7 +4,7 @@ import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
 import { BcryptService } from '../bcrypt/bcrypt.service'
 import { ERole } from '../common/enum/role.enum'
-import { FORBIDDEN_ERROR_MESSAGE, UNLIMITED_PER_PAGE } from '../common/constant'
+import { CONFLICT_ERROR_MESSAGE, FORBIDDEN_ERROR_MESSAGE } from '../common/constant'
 import { UserRepository } from './repository/user.repository'
 import { FindOptionsWhere, In, Like } from 'typeorm'
 import { UserUpdatePayloadInput } from '@modules/user/input/user-update-payload.input'
@@ -20,9 +20,8 @@ import { listInputToFindOptionsWhereAdapter } from '@modules/graphql/adapter/lis
 import {
     sortInputListToFindOptionsOrderAdapter,
 } from '@modules/graphql/adapter/sort-input-list-to-find-options-order.adapter'
-import { ExternalServiceEntity } from '@modules/external-service/entity/external-service.entity'
-import { ExternalServiceService } from '@modules/external-service/external-service.service'
 import { ExternalServiceRepository } from '@modules/external-service/repository/external-service.repository'
+import { ExternalRoleRepository } from '@modules/external-role/repository/external-role.repository'
 
 
 @Injectable()
@@ -30,8 +29,10 @@ export class UserService {
     constructor(
         @Inject(UserRepository)
         private readonly userRepository: UserRepository,
-        @Inject(ExternalServiceService)
+        @Inject(ExternalServiceRepository)
         private readonly externalServiceRepository: ExternalServiceRepository,
+        @Inject(ExternalRoleRepository)
+        private readonly externalRoleRepository: ExternalRoleRepository,
         @Inject(BcryptService)
         private readonly bcryptService: BcryptService,
     ) {
@@ -88,7 +89,13 @@ export class UserService {
     }
 
     async getOne(id: string): Promise<UserAttributes> {
-        const user = await this.userRepository.getOne({ id: id })
+        const user = await this.userRepository.getOne(
+            { id: id },
+            {
+                externalServices: true,
+                externalRoles: true,
+            },
+        )
         return userEntityToUserAttributesDtoAdapter(user)
     }
 
@@ -142,8 +149,6 @@ export class UserService {
 
         const allowedRoles = this.checkPrivileges(role)
 
-        console.log(allowedRoles)
-
         /**Check for possibility of user update*/
         if (!allowedRoles.includes(userToUpdate.role)) {
             Builder(UniversalError)
@@ -172,6 +177,30 @@ export class UserService {
             })
             : undefined
 
+        const userServicesId = externalServicesToUpdate
+            ? externalServicesToUpdate.map((item) => item.id)
+            : userToUpdate.externalServices.map((item) => item.id)
+
+        const externalRolesToUpdate = input.externalRolesId
+            ? await this.externalRoleRepository.getAll({
+                id: In(input.externalRolesId),
+            })
+            : undefined
+
+        if (externalRolesToUpdate) {
+            externalRolesToUpdate.forEach((item) => {
+                if (!userServicesId.includes(item.externalServiceId)) {
+                    Builder(UniversalError)
+                        .messages([
+                            CONFLICT_ERROR_MESSAGE,
+                            'You cant assign to user roles which belongs to service where user doesnt exist',
+                        ])
+                        .exceptionBaseClass(EUniversalExceptionType.conflict)
+                        .build().throw()
+                }
+            })
+        }
+
         await this.userRepository.update(
             { id: id },
             Builder<UserEntity>()
@@ -179,6 +208,7 @@ export class UserService {
                 .password(input?.password ? await this.bcryptService.hash(input.password) : undefined)
                 .role(input.role).verified(input?.verified || undefined)
                 .externalServices(externalServicesToUpdate)
+                .externalRoles(externalRolesToUpdate)
                 .build(),
         )
 

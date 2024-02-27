@@ -14,6 +14,12 @@ export class ExternalRoleEntity extends DefaultDatabaseEntity<ExternalRoleEntity
     @Column({ nullable: true })
     description?: string
 
+    @Column({
+        name: 'recognition_key',
+        unique: true,
+    })
+    recognitionKey: string
+
     @ManyToOne(
         () => ExternalServiceEntity,
         (service) => service.externalRoles,
@@ -23,7 +29,10 @@ export class ExternalRoleEntity extends DefaultDatabaseEntity<ExternalRoleEntity
         },
     )
     @JoinColumn({name: 'external_service_id'})
-    externalServices: ExternalServiceEntity[]
+    externalService: ExternalServiceEntity
+
+    @Column({ name: 'external_service_id', })
+    externalServiceId: string
 
     @ManyToMany(
         type => UserEntity,

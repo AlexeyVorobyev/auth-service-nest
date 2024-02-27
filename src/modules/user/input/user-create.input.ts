@@ -4,15 +4,17 @@ import {
     IsBoolean,
     IsEmail,
     IsEnum,
-    IsNotEmpty, IsOptional,
-    IsString, IsUUID,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
     Matches,
     MaxLength,
-    MinLength, ValidateNested,
+    MinLength,
 } from 'class-validator'
 import { ERole } from '@modules/common/enum/role.enum'
 import { Type } from 'class-transformer'
-import { UserExternalRolesInput } from '@modules/user/input/user-external-roles.input'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
 @InputType('TUserCreateInput')
 export class UserCreateInput {
@@ -66,10 +68,11 @@ export class UserCreateInput {
 
     @IsOptional()
     @IsArray()
-    @ValidateNested({ each: true })
-    @Field(() => [UserExternalRolesInput], {
+    @IsString({ each: true })
+    @IsUUID(4, { each: true })
+    @Field(() => [UUID], {
         description: 'Defines user external roles in connected external services',
         nullable: true
     })
-    externalRoles?: UserExternalRolesInput[]
+    externalRolesId?: string[]
 }

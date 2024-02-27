@@ -11,5 +11,6 @@ export const externalServiceEntityToExternalServiceAttributesAdapter = (external
         .createdAt(externalServiceInstance.createdAt)
         .updatedAt(externalServiceInstance.updatedAt)
         .recognitionKey(externalServiceInstance.recognitionKey)
+        .externalRoles(externalServiceInstance.externalRoles)
     return externalServiceAttributesBuilder.build()
 }

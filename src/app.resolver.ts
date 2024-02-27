@@ -3,9 +3,8 @@ import { UserQueries } from '@modules/user/resolver/user-query.resolver'
 import { UserMutations } from '@modules/user/resolver/user-mutation.resolver'
 import { ExternalServiceQueries } from '@modules/external-service/resolver/external-service-query.resolver'
 import { ExternalServiceMutations } from '@modules/external-service/resolver/external-service-mutation.resolver'
-import { UseGuards } from '@nestjs/common'
-import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
-import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
+import { ExternalRoleQueries } from '@modules/external-role/resolver/external-role-query.resolver'
+import { ExternalRoleMutations } from '@modules/external-role/resolver/external-role-mutation.resolver'
 
 @Resolver('root')
 export class RootResolver {
@@ -27,5 +26,15 @@ export class RootResolver {
     @Mutation(() => ExternalServiceMutations, { name: 'externalService' })
     externalServiceMutations() {
         return new ExternalServiceMutations()
+    }
+
+    @Query(() => ExternalRoleQueries, { name: 'externalRole' })
+    externalRoleQueries() {
+        return new ExternalRoleQueries()
+    }
+
+    @Mutation(() => ExternalRoleMutations, { name: 'externalRole' })
+    externalRoleMutations() {
+        return new ExternalRoleMutations()
     }
 }

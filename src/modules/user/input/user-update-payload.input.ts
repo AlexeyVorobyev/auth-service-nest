@@ -2,17 +2,18 @@ import { Field, InputType } from '@nestjs/graphql'
 import {
 	IsArray,
 	IsBoolean,
-	IsEmail, IsEnum,
-	IsNotEmpty,
+	IsEmail,
+	IsEnum,
 	IsOptional,
-	IsString, IsUUID,
+	IsString,
+	IsUUID,
 	Matches,
 	MaxLength,
-	MinLength, ValidateNested,
+	MinLength,
 } from 'class-validator'
 import { ERole } from '@modules/common/enum/role.enum'
 import { Type } from 'class-transformer'
-import { UserExternalRolesInput } from '@modules/user/input/user-external-roles.input'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
 @InputType('TUserUpdatePayloadInput')
 export class UserUpdatePayloadInput {
@@ -62,7 +63,7 @@ export class UserUpdatePayloadInput {
 	@IsArray()
 	@IsString({ each: true })
 	@IsUUID(4, { each: true })
-	@Field(() => [String], {
+	@Field(() => [UUID], {
 		description: 'Defines user connected external services',
 		nullable: true
 	})
@@ -70,10 +71,11 @@ export class UserUpdatePayloadInput {
 
 	@IsOptional()
 	@IsArray()
-	@ValidateNested({ each: true })
-	@Field(() => [UserExternalRolesInput], {
+	@IsString({ each: true })
+	@IsUUID(4, { each: true })
+	@Field(() => [UUID], {
 		description: 'Defines user external roles in connected external services',
 		nullable: true
 	})
-	externalRoles?: UserExternalRolesInput[]
+	externalRolesId?: string[]
 }

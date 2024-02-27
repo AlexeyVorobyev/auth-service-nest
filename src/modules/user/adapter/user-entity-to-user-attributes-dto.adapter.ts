@@ -4,6 +4,9 @@ import { UserAttributes } from '@modules/user/attributes/user-attributes'
 import {
     externalServiceEntityToExternalServiceAttributesAdapter
 } from '@modules/external-service/adapter/external-service-entity-to-external-service-attributes.adapter'
+import {
+    externalRoleEntityToExternalRoleAttributesAdapter
+} from '@modules/external-role/adapter/external-role-entity-to-external-role-attributes.adapter'
 
 export const userEntityToUserAttributesDtoAdapter = (userEntityInstance: UserEntity): UserAttributes => {
     const userAttributesDtoBuilder = Builder<UserAttributes>()
@@ -14,9 +17,13 @@ export const userEntityToUserAttributesDtoAdapter = (userEntityInstance: UserEnt
         .updatedAt(new Date(userEntityInstance.updatedAt))
         .createdAt(new Date(userEntityInstance.createdAt))
         .verified(userEntityInstance.verified)
+        .externalRoles(
+            userEntityInstance.externalRoles
+                .map((item) => externalRoleEntityToExternalRoleAttributesAdapter(item))
+        )
         .externalServices(
             userEntityInstance.externalServices
-                .map(item => externalServiceEntityToExternalServiceAttributesAdapter(item))
+                .map((item) => externalServiceEntityToExternalServiceAttributesAdapter(item))
         )
     return userAttributesDtoBuilder.build()
 }

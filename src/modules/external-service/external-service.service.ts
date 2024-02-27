@@ -72,7 +72,13 @@ export class ExternalServiceService {
     }
 
     async getOne(id: string): Promise<ExternalServiceAttributes> {
-        const externalService = await this.externalServiceRepository.getOne({ id: id })
+        const externalService = await this.externalServiceRepository.getOne(
+            { id: id },
+            {
+                users: true,
+                externalRoles: true,
+            },
+        )
         return externalServiceEntityToExternalServiceAttributesAdapter(externalService)
     }
 
@@ -97,7 +103,7 @@ export class ExternalServiceService {
                 .build(),
         )
 
-        return await this.externalServiceRepository.getOne({ id: id })
+        return await this.getOne(id)
     }
 
     async delete(id: string): Promise<string> {

@@ -1,5 +1,9 @@
 import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
 import { Field, ObjectType } from '@nestjs/graphql'
+import {
+    ExternalRoleAttributes,
+    ExternalRoleAttributesOmitExternalService,
+} from '@modules/external-role/attributes/external-role.attributes'
 
 @ObjectType('TExternalServiceAttributes')
 export class ExternalServiceAttributes extends DefaultAttributes {
@@ -20,9 +24,8 @@ export class ExternalServiceAttributes extends DefaultAttributes {
     })
     recognitionKey: string
 
-    // @ApiProperty({
-    //     description: 'Roles, which works in that particular service',
-    //     type: [String]
-    // })
-    // roles?: string
+    @Field(() => [ExternalRoleAttributesOmitExternalService]!, {
+        description: 'External role attributes',
+    })
+    externalRoles: ExternalRoleAttributesOmitExternalService[]
 }

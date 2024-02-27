@@ -16,9 +16,7 @@ import { ConfigModule } from '@modules/config/config.module'
     imports: [
         ConfigModule,
         DatabaseModule,
-        JwtModule,
         ExternalRoleModule,
-        BcryptModule,
         UserModule,
         AuthModule,
         EmailModule,

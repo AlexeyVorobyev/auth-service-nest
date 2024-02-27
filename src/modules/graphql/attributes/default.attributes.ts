@@ -1,9 +1,10 @@
 import { DefaultDatabaseEntity } from '@modules/database/entity/default-database.entity'
-import { Field, ID, ObjectType } from '@nestjs/graphql'
+import { Field, ObjectType } from '@nestjs/graphql'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
 @ObjectType()
 export abstract class DefaultAttributes implements DefaultDatabaseEntity<DefaultAttributes> {
-    @Field(() => ID, {
+    @Field(() => UUID, {
         description: 'Entity id in UUID format',
     })
     public id: string

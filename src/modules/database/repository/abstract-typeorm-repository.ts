@@ -28,9 +28,10 @@ export abstract class AbstractTypeormRepository<Entity> implements IRepository<E
 		})
 	}
 
-	async getOne(filter?: FindOptionsWhere<Entity>): Promise<Entity> {
+	async getOne(filter?: FindOptionsWhere<Entity>, relations?: FindOptionsRelations<Entity>): Promise<Entity> {
 		const entityInstance = await this.typeormRepository.findOne({
-			where: filter || undefined
+			where: filter || undefined,
+			relations: relations
 		})
 		if (!entityInstance) {
 			Builder(UniversalError)

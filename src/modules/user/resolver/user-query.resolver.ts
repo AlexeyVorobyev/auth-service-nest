@@ -20,8 +20,6 @@ export class UserQueryResolver {
     constructor(
         @Inject(UserService)
         private userService: UserService,
-        // @Inject(JwtGraphQLAuthGuard)
-        // private jwtGraphQLAuthGuard: JwtGraphQLAuthGuard
     ) {
     }
 

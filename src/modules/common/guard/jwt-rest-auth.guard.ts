@@ -16,7 +16,6 @@ export class JwtRestAuthGuard implements CanActivate {
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		console.log('here')
 		const request = context.switchToHttp().getRequest()
 		const token = this.getToken(request)
 		if (!token) {

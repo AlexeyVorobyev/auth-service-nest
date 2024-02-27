@@ -1,0 +1,37 @@
+import { Field, InputType } from '@nestjs/graphql'
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator'
+import { UUID } from '@modules/graphql/scalar/uuid.scalar'
+
+@InputType('TExternalRoleCreateInput')
+export class ExternalRoleCreateInput {
+    @Field(() => String!, {
+        description: 'Name of external role',
+    })
+    @IsNotEmpty()
+    @IsString()
+    name: string
+
+    @Field(() => String, {
+        description: 'Description of external role',
+        nullable: true
+    })
+    @IsOptional()
+    @IsString()
+    description?: string
+
+    @Field(() => UUID, {
+        description: 'Relation with external service',
+    })
+    @IsNotEmpty()
+    @IsUUID(4)
+    @IsString()
+    externalServiceId: string
+
+    @Field(() => String, {
+        description: 'Recognition key of external service',
+        nullable: true
+    })
+    @IsNotEmpty()
+    @IsString()
+    recognitionKey: string
+}

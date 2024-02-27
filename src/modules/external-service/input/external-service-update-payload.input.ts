@@ -5,6 +5,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
 export class ExternalServiceUpdatePayloadInput {
     @Field(() => String, {
         description: 'Name of external service',
+        nullable: true
     })
     @IsOptional()
     @IsString()

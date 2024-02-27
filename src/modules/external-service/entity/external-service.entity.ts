@@ -33,7 +33,7 @@ export class ExternalServiceEntity extends DefaultDatabaseEntity<ExternalService
 
     @OneToMany(
         () => ExternalRoleEntity,
-        (externalRole) => externalRole.externalServices,
+        (externalRole) => externalRole.externalService,
         {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',

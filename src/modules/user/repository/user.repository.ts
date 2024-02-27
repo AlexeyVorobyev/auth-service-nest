@@ -25,6 +25,8 @@ export class UserRepository extends AbstractTypeormRepositoryFactory<UserEntity>
                     .password(entity?.password || userInstance.password)
                     .email(entity?.email || userInstance.email)
                     .role(entity?.role || userInstance.role)
+                    .externalServices(entity?.externalServices || userInstance.externalServices)
+                    .externalRoles(entity?.externalRoles || userInstance.externalRoles)
                     .build(),
             )
         } catch (error) {
