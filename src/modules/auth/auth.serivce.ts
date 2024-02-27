@@ -2,12 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import jwtConfig from '../config/config/jwt.config'
 import { BcryptService } from '../bcrypt/bcrypt.service'
-import { SignInDto } from './dto/sign-in.dto'
-import { SignUpDto } from './dto/sign-up.dto'
-import { SignInResponseDto } from './dto/sign-in-response.dto'
 import { Builder } from 'builder-pattern'
-import { RefreshDto } from './dto/refresh.dto'
-import { RefreshResponseDto } from './dto/refresh-response.dto'
 import { DEFAULT_ROLE } from '../common/constant'
 import { UniversalError } from '../common/class/universal-error'
 import { EUniversalExceptionType } from '../common/enum/exceptions'
@@ -18,6 +13,10 @@ import { JwtService } from '@modules/jwt/jwt.service'
 import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
 import { UserEntity } from '@modules/user/entity/user.entity'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
+import { SignUpInput } from '@modules/auth/input/sign-up.input'
+import { TokenDataAttributes } from '@modules/auth/attributes/token-data.attributes'
+import { SignInInput } from '@modules/auth/input/sign-in.input'
+import { RefreshInput } from '@modules/auth/input/refresh.input'
 
 @Injectable()
 export class AuthService {
@@ -37,11 +36,11 @@ export class AuthService {
     ) {
     }
 
-    async signUp(signUpDto: SignUpDto): Promise<void> {
+    async signUp(input: SignUpInput): Promise<TokenDataAttributes> {
         const userCreateInput = Builder<UserCreateInput>()
         userCreateInput
-            .email(signUpDto.email)
-            .password(signUpDto.password)
+            .email(input.email)
+            .password(input.password)
             .role(DEFAULT_ROLE)
             .verified(false)
         const userCreateResponseDtoInstance = await this.userService.create(userCreateInput.build())
@@ -51,12 +50,12 @@ export class AuthService {
             userEntityInstance,
             await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.verify),
         )
+
+        return this.getTokenDataAttributes(userEntityInstance)
     }
 
-    async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
-        const { email, password } = signInDto
-
-        const userEntityInstance = await this.userRepository.getOne({ email: email })
+    async signIn(input: SignInInput): Promise<TokenDataAttributes> {
+        const userEntityInstance = await this.userRepository.getOne({ email: input.email })
         if (!userEntityInstance) {
             Builder(UniversalError)
                 .messages(['Invalid email'])
@@ -65,7 +64,7 @@ export class AuthService {
         }
 
         const isPasswordMatch = await this.bcryptService.compare(
-            password,
+            input.password,
             userEntityInstance.password,
         )
         if (!isPasswordMatch) {
@@ -75,17 +74,11 @@ export class AuthService {
                 .build().throw()
         }
 
-        const SignInResponseBuilder = Builder(SignInResponseDto)
-        SignInResponseBuilder
-            .accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
-            .accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
-            .refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
-            .refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
-        return SignInResponseBuilder.build()
+        return this.getTokenDataAttributes(userEntityInstance)
     }
 
-    async refresh(refreshDto: RefreshDto, userId: string): Promise<RefreshResponseDto> {
-        await this.jwtAlexService.verifyToken(refreshDto.refreshToken, EJwtStrategy.refresh)
+    async refresh(token: string, userId: string): Promise<TokenDataAttributes> {
+        await this.jwtAlexService.verifyToken(token, EJwtStrategy.refresh)
 
         const userEntityInstance = await this.userRepository.getOne({ id: userId })
         if (!userEntityInstance) {
@@ -95,13 +88,17 @@ export class AuthService {
                 .build().throw()
         }
 
-        const RefreshResponseBuilder = Builder(RefreshResponseDto)
-        RefreshResponseBuilder
+        return this.getTokenDataAttributes(userEntityInstance)
+    }
+
+    private async getTokenDataAttributes(userEntityInstance: UserEntity): Promise<TokenDataAttributes> {
+        const TokenDataAttributesBuilder = Builder<TokenDataAttributes>()
+        TokenDataAttributesBuilder
             .accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
             .accessTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.accessTokenTtl))
             .refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
             .refreshTokenTTL(new Date(new Date().valueOf() + this.jwtConfiguration.refreshTokenTtl))
-        return RefreshResponseBuilder.build()
+        return TokenDataAttributesBuilder.build()
     }
 
     async resendConfirmationMail(userId: string) {

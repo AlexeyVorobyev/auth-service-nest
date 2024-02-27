@@ -8,6 +8,8 @@ import { UserModule } from '../user/user.module'
 import { BcryptModule } from '../bcrypt/bcrypt.module'
 import { JwtModule } from '@modules/jwt/jwt.module'
 import { EmailModule } from '@modules/email/email.module'
+import { AuthMutationResolver } from '@modules/auth/resolver/auth-mutation.resolver'
+import { AuthQueryResolver } from '@modules/auth/resolver/auth-query.resolver'
 
 @Module({
     imports: [
@@ -18,7 +20,11 @@ import { EmailModule } from '@modules/email/email.module'
         EmailModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [
+        AuthService,
+        AuthMutationResolver,
+        AuthQueryResolver
+    ],
 })
 export class AuthModule {
 }

@@ -3,6 +3,10 @@ import { GraphQLModule } from '@nestjs/graphql'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { join } from 'path'
 import { UUID } from '@modules/graphql/scalar/uuid.scalar'
+import {
+    graphqlFormattedErrorToGraphqlErrorAttributesAdapter
+} from '@modules/graphql/adapter/graphql-formatted-error-to-graphql-error-attributes.adapter'
+import { GraphQLFormattedError } from 'graphql/error'
 
 @Module({
     imports: [
@@ -16,10 +20,10 @@ import { UUID } from '@modules/graphql/scalar/uuid.scalar'
             resolvers: { UUID: UUID },
             sortSchema: true,
             playground: true,
-            fieldResolverEnhancers: ['guards']
+            fieldResolverEnhancers: ['guards'],
+            formatError: (formattedError) => graphqlFormattedErrorToGraphqlErrorAttributesAdapter(formattedError) as unknown as GraphQLFormattedError
         }),
     ],
-    exports: [GraphQLModule],
 })
 export class GraphqlModule {
 }

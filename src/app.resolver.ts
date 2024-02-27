@@ -5,6 +5,8 @@ import { ExternalServiceQueries } from '@modules/external-service/resolver/exter
 import { ExternalServiceMutations } from '@modules/external-service/resolver/external-service-mutation.resolver'
 import { ExternalRoleQueries } from '@modules/external-role/resolver/external-role-query.resolver'
 import { ExternalRoleMutations } from '@modules/external-role/resolver/external-role-mutation.resolver'
+import { AuthMutations } from '@modules/auth/resolver/auth-mutation.resolver'
+import { AuthQueries } from '@modules/auth/resolver/auth-query.resolver'
 
 @Resolver('root')
 export class RootResolver {
@@ -36,5 +38,15 @@ export class RootResolver {
     @Mutation(() => ExternalRoleMutations, { name: 'externalRole' })
     externalRoleMutations() {
         return new ExternalRoleMutations()
+    }
+
+    @Mutation(() => AuthMutations, { name: 'auth' })
+    authMutations() {
+        return new AuthMutations()
+    }
+
+    @Query(() => AuthQueries, { name: 'auth' })
+    authQueries() {
+        return new AuthQueries()
     }
 }

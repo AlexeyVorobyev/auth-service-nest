@@ -1,9 +1,10 @@
 import { IsNumber, IsOptional, IsPositive, IsString, IsUUID, Min, ValidateNested } from 'class-validator'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { Field, InputType, Int } from '@nestjs/graphql'
 import { DatePeriodInput } from '@modules/graphql/input/date-period.input'
 import { SortInput } from '@modules/graphql/input/sort.input'
 import { UUID } from '@modules/graphql/scalar/uuid.scalar'
+import validator from 'validator'
 
 @InputType()
 export abstract class ListInput {
@@ -33,6 +34,8 @@ export abstract class ListInput {
         description: 'SimpleFilter',
         nullable: true,
     })
+    @Transform((value) => validator.trim(value.value))
+    @Transform((value) => value.value.toLowerCase())
     simpleFilter?: string
 
     @IsOptional()

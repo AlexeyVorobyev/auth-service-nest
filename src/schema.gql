@@ -19,15 +19,30 @@ enum ESortDirection {
 }
 
 type Mutation {
+  auth: TAuthMutations!
   externalRole: TExternalRoleMutations!
   externalService: TExternalServiceMutations!
   user: TUserMutations!
 }
 
 type Query {
+  auth: TAuthQueries!
   externalRole: TExternalRoleQueries!
   externalService: TExternalServiceQueries!
   user: TUserQueries!
+}
+
+type TAuthMutations {
+  """Provides functionality of sign up to system."""
+  signUp(input: TSignUpInput!): TTokenDataAttributes!
+}
+
+type TAuthQueries {
+  """Provides functionality of sign in to system."""
+  signIn(input: TSignInInput!): TTokenDataAttributes!
+
+  """Provides functionality of sign up to system."""
+  signUp(input: TRefreshInput!): TTokenDataAttributes!
 }
 
 input TDatePeriodInput {
@@ -281,12 +296,47 @@ type TListMetaAttributes {
   totalPages: Int!
 }
 
+input TRefreshInput {
+  """Refresh token"""
+  token: String!
+}
+
+input TSignInInput {
+  """Email of user"""
+  email: String!
+
+  """Password of user"""
+  password: String!
+}
+
+input TSignUpInput {
+  """Email of user"""
+  email: String!
+
+  """Password of user"""
+  password: String!
+}
+
 input TSortInput {
   """Name of column"""
   columnName: String
 
   """Sort direction"""
   direction: ESortDirection
+}
+
+type TTokenDataAttributes {
+  """Access JWT token"""
+  accessToken: String!
+
+  """Date, when access token will expire"""
+  accessTokenTTL: String!
+
+  """Refresh JWT token"""
+  refreshToken: String!
+
+  """Date, when refresh token will expire"""
+  refreshTokenTTL: String!
 }
 
 type TUserAttributes {
