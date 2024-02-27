@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { FORBIDDEN_ERROR_MESSAGE, REQUEST_ROLES_KEY, REQUEST_USER_KEY } from '../constant'
 import { ERole } from '../enum/role.enum'
-import { IActiveUserData } from '../interface/active-user-data.interface'
+import { TJwtTokenPayload } from '../../jwt/type/jwt-token-payload.type'
 import { Builder } from 'builder-pattern'
 import { UniversalError } from '../class/universal-error'
 import { EUniversalExceptionType } from '../enum/exceptions'
@@ -24,7 +24,7 @@ export class RoleRestGuard implements CanActivate {
 		}
 
 		const request = context.switchToHttp().getRequest()
-		const userRequestData: IActiveUserData | undefined = request[REQUEST_USER_KEY]
+		const userRequestData: TJwtTokenPayload | undefined = request[REQUEST_USER_KEY]
 
 		if (requiredRoles.includes(userRequestData.role)) {
 			return true
