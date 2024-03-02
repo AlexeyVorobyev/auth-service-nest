@@ -38,8 +38,11 @@ type TAuthMutations {
 }
 
 type TAuthQueries {
-  """Provides functionality of sign up to system."""
+  """Provides functionality of refreshing tokens."""
   refresh(input: TRefreshInput!): TTokenDataAttributes!
+
+  """sends email to user to make account verified"""
+  sendConfirmationEmail: Boolean!
 
   """Provides functionality of sign in to system."""
   signIn(input: TSignInInput!): TTokenDataAttributes!

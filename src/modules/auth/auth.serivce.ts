@@ -43,13 +43,11 @@ export class AuthService {
             .password(input.password)
             .role(DEFAULT_ROLE)
             .verified(false)
-        const userCreateResponseDtoInstance = await this.userService.create(userCreateInput.build())
+        const createdUserAttributes = await this.userService.create(userCreateInput.build())
 
-        const userEntityInstance = await this.userRepository.getOne({ id: userCreateResponseDtoInstance.id })
-        await this.emailService.sendUserConfirmation(
-            userEntityInstance,
-            await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.verify),
-        )
+        await this.sendConfirmationMail(createdUserAttributes.id)
+
+        const userEntityInstance = await this.userRepository.getOne({ id: createdUserAttributes.id })
 
         return this.getTokenDataAttributes(userEntityInstance)
     }
@@ -101,7 +99,7 @@ export class AuthService {
         return TokenDataAttributesBuilder.build()
     }
 
-    async resendConfirmationMail(userId: string) {
+    async sendConfirmationMail(userId: string) {
         const userEntityInstance = await this.userRepository.getOne({ id: userId })
         await this.emailService.sendUserConfirmation(
             userEntityInstance,

@@ -30,14 +30,14 @@ export class AuthController {
         description: 'User successfully received confirmation email',
     })
     @ApiOperation({
-        summary: 'Resend confirmation email endpoint',
+        summary: 'Send confirmation email endpoint',
         description: 'Allows to send confirmation email to current user.',
     })
     @ApiBearerAuth()
     @UseGuards(JwtRestAuthGuard)
-    @Post('resend-confirmation-email')
-    async resendConfirmationMail(@ActiveUser('id') userId: string) {
-        await this.authService.resendConfirmationMail(userId)
+    @Post('send-confirmation-email')
+    async sendConfirmationMail(@ActiveUser('id') userId: string) {
+        await this.authService.sendConfirmationMail(userId)
     }
 
     @ApiUnauthorizedResponse({

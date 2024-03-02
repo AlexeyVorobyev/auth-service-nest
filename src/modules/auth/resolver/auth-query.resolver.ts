@@ -27,14 +27,23 @@ export class AuthQueryResolver {
         return this.authService.signIn(input)
     }
 
-    @UseGuards(JwtGraphQLAuthGuard)
     @ResolveField(() => TokenDataAttributes, {
         name: 'refresh',
-        description: 'Provides functionality of sign up to system.',
+        description: 'Provides functionality of refreshing tokens.',
     })
     async refresh(
         @ActiveUser('id') userId: string,
         @Args('input') input: RefreshInput): Promise<TokenDataAttributes> {
         return this.authService.refresh(input.token, userId)
+    }
+
+    @UseGuards(JwtGraphQLAuthGuard)
+    @ResolveField(() => Boolean, {
+        name: 'sendConfirmationEmail',
+        description: 'sends email to user to make account verified'
+    })
+    async sendConfirmationMail(@ActiveUser('id') userId: string) {
+        await this.authService.sendConfirmationMail(userId)
+        return true
     }
 }
