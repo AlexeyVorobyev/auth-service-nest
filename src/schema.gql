@@ -38,11 +38,11 @@ type TAuthMutations {
 }
 
 type TAuthQueries {
+  """Provides functionality of sign up to system."""
+  refresh(input: TRefreshInput!): TTokenDataAttributes!
+
   """Provides functionality of sign in to system."""
   signIn(input: TSignInInput!): TTokenDataAttributes!
-
-  """Provides functionality of sign up to system."""
-  signUp(input: TRefreshInput!): TTokenDataAttributes!
 }
 
 input TDatePeriodInput {
