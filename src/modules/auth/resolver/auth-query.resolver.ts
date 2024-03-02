@@ -29,7 +29,7 @@ export class AuthQueryResolver {
 
     @UseGuards(JwtGraphQLAuthGuard)
     @ResolveField(() => TokenDataAttributes, {
-        name: 'signUp',
+        name: 'refresh',
         description: 'Provides functionality of sign up to system.',
     })
     async refresh(
