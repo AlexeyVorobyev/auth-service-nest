@@ -93,9 +93,9 @@ export class AuthService {
         const TokenDataAttributesBuilder = Builder<TokenDataAttributes>()
         TokenDataAttributesBuilder
             .accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
-            .accessTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.accessTokenTtl)
+            .accessTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.accessTokenTtl / 1000)
             .refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
-            .refreshTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.refreshTokenTtl)
+            .refreshTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.refreshTokenTtl / 1000)
         return TokenDataAttributesBuilder.build()
     }
 
