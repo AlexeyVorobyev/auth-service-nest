@@ -2,10 +2,10 @@ import { UserEntity } from '../entity/user.entity'
 import { Builder } from 'builder-pattern'
 import { UserAttributes } from '@modules/user/attributes/user-attributes'
 import {
-    externalServiceEntityToExternalServiceAttributesAdapter
+    externalServiceEntityToExternalServiceAttributesAdapter,
 } from '@modules/external-service/adapter/external-service-entity-to-external-service-attributes.adapter'
 import {
-    externalRoleEntityToExternalRoleAttributesAdapter
+    externalRoleEntityToExternalRoleAttributesAdapter,
 } from '@modules/external-role/adapter/external-role-entity-to-external-role-attributes.adapter'
 
 export const userEntityToUserAttributesDtoAdapter = (userEntityInstance: UserEntity): UserAttributes => {
@@ -19,11 +19,11 @@ export const userEntityToUserAttributesDtoAdapter = (userEntityInstance: UserEnt
         .verified(userEntityInstance.verified)
         .externalRoles(
             userEntityInstance.externalRoles
-                .map((item) => externalRoleEntityToExternalRoleAttributesAdapter(item))
+                ?.map((item) => externalRoleEntityToExternalRoleAttributesAdapter(item)) || [],
         )
         .externalServices(
             userEntityInstance.externalServices
-                .map((item) => externalServiceEntityToExternalServiceAttributesAdapter(item))
+                ?.map((item) => externalServiceEntityToExternalServiceAttributesAdapter(item)) || [],
         )
     return userAttributesDtoBuilder.build()
 }
