@@ -10,9 +10,9 @@ export class TokenDataAttributes {
     readonly accessToken: string
 
     @Field(() => String!, {
-        description: 'Date, when access token will expire',
+        description: 'Timestamp, when access token will expire in UTC',
     })
-    readonly accessTokenTTL: Date
+    readonly accessTokenTTL: number
 
     @Field(() => String!, {
         description: 'Refresh JWT token',
@@ -20,7 +20,7 @@ export class TokenDataAttributes {
     readonly refreshToken: string
 
     @Field(() => String!, {
-        description: 'Date, when refresh token will expire',
+        description: 'Timestamp, when refresh token will expire in UTC',
     })
-    readonly refreshTokenTTL: Date
+    readonly refreshTokenTTL: number
 }

@@ -36,14 +36,4 @@ export class AuthQueryResolver {
         @Args('input') input: RefreshInput): Promise<TokenDataAttributes> {
         return this.authService.refresh(input.token, userId)
     }
-
-    @UseGuards(JwtGraphQLAuthGuard)
-    @ResolveField(() => Boolean, {
-        name: 'sendConfirmationEmail',
-        description: 'sends email to user to make account verified'
-    })
-    async sendConfirmationMail(@ActiveUser('id') userId: string) {
-        await this.authService.sendConfirmationMail(userId)
-        return true
-    }
 }

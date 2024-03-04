@@ -33,6 +33,12 @@ type Query {
 }
 
 type TAuthMutations {
+  """sends email to user to make account verified"""
+  sendConfirmationEmail(input: TIdInput!): Boolean!
+
+  """sends email to you to verify"""
+  sendConfirmationEmailMe: Boolean!
+
   """Provides functionality of sign up to system."""
   signUp(input: TSignUpInput!): TTokenDataAttributes!
 }
@@ -40,9 +46,6 @@ type TAuthMutations {
 type TAuthQueries {
   """Provides functionality of refreshing tokens."""
   refresh(input: TRefreshInput!): TTokenDataAttributes!
-
-  """sends email to user to make account verified"""
-  sendConfirmationEmail: Boolean!
 
   """Provides functionality of sign in to system."""
   signIn(input: TSignInInput!): TTokenDataAttributes!
@@ -332,13 +335,13 @@ type TTokenDataAttributes {
   """Access JWT token"""
   accessToken: String!
 
-  """Date, when access token will expire"""
+  """Timestamp, when access token will expire in UTC"""
   accessTokenTTL: String!
 
   """Refresh JWT token"""
   refreshToken: String!
 
-  """Date, when refresh token will expire"""
+  """Timestamp, when refresh token will expire in UTC"""
   refreshTokenTTL: String!
 }
 
