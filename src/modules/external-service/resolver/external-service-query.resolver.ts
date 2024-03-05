@@ -9,6 +9,7 @@ import { ExternalServiceListInput } from '@modules/external-service/input/extern
 import { ExternalServiceListAttributes } from '@modules/external-service/attributes/external-service-list.attributes'
 import { UserAttributes } from '@modules/user/attributes/user-attributes'
 import { IdInput } from '@modules/graphql/input/id.input'
+import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
 
 @ObjectType('TExternalServiceQueries')
 export class ExternalServiceQueries {
@@ -37,7 +38,7 @@ export class ExternalServiceQueryResolver {
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
     @Roles(ERole.Admin, ERole.Moderator)
-    @ResolveField(() => UserAttributes, {
+    @ResolveField(() => ExternalServiceAttributes, {
         name: 'record',
         description: 'Provides functionality of getting information about external service by id.',
     })

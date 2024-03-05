@@ -263,7 +263,7 @@ type TExternalServiceQueries {
   """
   Provides functionality of getting information about external service by id.
   """
-  record(idInput: TIdInput!): TUserAttributes!
+  record(idInput: TIdInput!): TExternalServiceAttributes!
 }
 
 input TExternalServiceUpdateInput {
