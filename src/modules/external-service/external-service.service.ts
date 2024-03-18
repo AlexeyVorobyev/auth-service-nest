@@ -15,7 +15,6 @@ import { ExternalServiceCreateInput } from '@modules/external-service/input/exte
 import {
     sortInputListToFindOptionsOrderAdapter,
 } from '@modules/graphql/adapter/sort-input-list-to-find-options-order.adapter'
-import { ExternalServiceUpdateInput } from '@modules/external-service/input/external-service-update.input'
 import {
     ExternalServiceUpdatePayloadInput,
 } from '@modules/external-service/input/external-service-update-payload.input'
