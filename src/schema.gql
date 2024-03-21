@@ -33,14 +33,19 @@ type Query {
 }
 
 type TAuthMutations {
+  """Provides functionality of sign up to system"""
+  baseSignUp(input: TSignUpInput!): TTokenDataAttributes!
+
+  """
+  Provides functionality of sign up to particular external service in the system
+  """
+  externalServiceSignUp(input: TExternalServiceSignUpInput!): TDefaultAttributes!
+
   """sends email to user to make account verified"""
   sendConfirmationEmail(input: TIdInput!): Boolean!
 
   """sends email to you to verify"""
   sendConfirmationEmailMe: Boolean!
-
-  """Provides functionality of sign up to system."""
-  signUp(input: TSignUpInput!): TTokenDataAttributes!
 }
 
 type TAuthQueries {
@@ -59,21 +64,32 @@ input TDatePeriodInput {
   startDate: DateTime
 }
 
+type TDefaultAttributes {
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+}
+
 type TExternalRoleAttributes {
   """Entity creation datetime"""
   createdAt: DateTime!
+
+  """Is role default"""
+  default: Boolean!
 
   """Description of external role"""
   description: String
 
   """External service attributes"""
-  externalService: TExternalServiceAttributes!
+  externalService: TExternalServiceAttributesOmitExternalRoles!
 
   """Entity id in UUID format"""
   id: UUID!
 
   """Name of external role"""
   name: String!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 
   """Recognition key of external role"""
   recognitionKey: String
@@ -86,8 +102,40 @@ type TExternalRoleAttributesOmitExternalService {
   """Entity creation datetime"""
   createdAt: DateTime!
 
+  """Is role default"""
+  default: Boolean!
+
   """Description of external role"""
   description: String
+
+  """Entity id in UUID format"""
+  id: UUID!
+
+  """Name of external role"""
+  name: String!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+
+  """Recognition key of external role"""
+  recognitionKey: String
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+}
+
+type TExternalRoleAttributesOmitOperationMeta {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Is role default"""
+  default: Boolean!
+
+  """Description of external role"""
+  description: String
+
+  """External service attributes"""
+  externalService: TExternalServiceAttributesOmitExternalRoles!
 
   """Entity id in UUID format"""
   id: UUID!
@@ -117,8 +165,11 @@ input TExternalRoleCreateInput {
 }
 
 type TExternalRoleListAttributes {
-  data: [TExternalRoleAttributes!]!
+  data: [TExternalRoleAttributesOmitOperationMeta!]!
   meta: TListMetaAttributes!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 }
 
 input TExternalRoleListInput {
@@ -199,8 +250,57 @@ type TExternalServiceAttributes {
   """Name of external service"""
   name: String!
 
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+
   """Recognition key of external service"""
-  recognitionKey: String
+  recognitionKey: String!
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+}
+
+type TExternalServiceAttributesOmitExternalRoles {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Description of external service"""
+  description: String
+
+  """Entity id in UUID format"""
+  id: UUID!
+
+  """Name of external service"""
+  name: String!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+
+  """Recognition key of external service"""
+  recognitionKey: String!
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+}
+
+type TExternalServiceAttributesOmitOperationMeta {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Description of external service"""
+  description: String
+
+  """External role attributes"""
+  externalRoles: [TExternalRoleAttributesOmitExternalService!]!
+
+  """Entity id in UUID format"""
+  id: UUID!
+
+  """Name of external service"""
+  name: String!
+
+  """Recognition key of external service"""
+  recognitionKey: String!
 
   """Entity last update datetime"""
   updatedAt: DateTime!
@@ -218,8 +318,11 @@ input TExternalServiceCreateInput {
 }
 
 type TExternalServiceListAttributes {
-  data: [TExternalServiceAttributes!]!
+  data: [TExternalServiceAttributesOmitOperationMeta!]!
   meta: TListMetaAttributes!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 }
 
 input TExternalServiceListInput {
@@ -266,6 +369,11 @@ type TExternalServiceQueries {
   record(idInput: TIdInput!): TExternalServiceAttributes!
 }
 
+input TExternalServiceSignUpInput {
+  """Special key to recognise external service"""
+  recognitionKey: String!
+}
+
 input TExternalServiceUpdateInput {
   """Identification property with uuid signature"""
   id: UUID!
@@ -300,6 +408,17 @@ type TListMetaAttributes {
 
   """Total amount of pages in list"""
   totalPages: Int!
+}
+
+type TOperationMetaAttributes {
+  """Operation delta timestamp"""
+  deltaTimestamp: Float!
+
+  """Operation finish timestamp"""
+  finishTimestamp: Float!
+
+  """Operation start timestamp"""
+  startTimestamp: Float!
 }
 
 input TRefreshInput {
@@ -338,6 +457,9 @@ type TTokenDataAttributes {
   """Timestamp, when access token will expire in UTC"""
   accessTokenTTL: String!
 
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+
   """Refresh JWT token"""
   refreshToken: String!
 
@@ -346,6 +468,35 @@ type TTokenDataAttributes {
 }
 
 type TUserAttributes {
+  """Entity creation datetime"""
+  createdAt: DateTime!
+
+  """Email of user"""
+  email: String!
+
+  """External roles of user"""
+  externalRoles: [TExternalRoleAttributes!]!
+
+  """External services of user"""
+  externalServices: [TExternalServiceAttributes!]!
+
+  """Entity id in UUID format"""
+  id: UUID!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+
+  """Role of user"""
+  role: ERole!
+
+  """Entity last update datetime"""
+  updatedAt: DateTime!
+
+  """Defines are user verified"""
+  verified: Boolean!
+}
+
+type TUserAttributesOmitOperationMeta {
   """Entity creation datetime"""
   createdAt: DateTime!
 
@@ -392,8 +543,11 @@ input TUserCreateInput {
 }
 
 type TUserListAttributes {
-  data: [TUserAttributes!]!
+  data: [TUserAttributesOmitOperationMeta!]!
   meta: TListMetaAttributes!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 }
 
 input TUserListInput {

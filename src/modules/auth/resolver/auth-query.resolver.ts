@@ -1,20 +1,20 @@
 import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseInterceptors } from '@nestjs/common'
 import { AuthService } from '@modules/auth/auth.serivce'
 import { TokenDataAttributes } from '@modules/auth/attributes/token-data.attributes'
 import { SignInInput } from '@modules/auth/input/sign-in.input'
 import { RefreshInput } from '@modules/auth/input/refresh.input'
 import { ActiveUser } from '@modules/common/decorator/active-user.decorator'
-import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 @ObjectType('TAuthQueries')
 export class AuthQueries {
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => AuthQueries)
 export class AuthQueryResolver {
     constructor(
-        @Inject(AuthService)
         private authService: AuthService,
     ) {
     }
@@ -33,7 +33,8 @@ export class AuthQueryResolver {
     })
     async refresh(
         @ActiveUser('id') userId: string,
-        @Args('input') input: RefreshInput): Promise<TokenDataAttributes> {
+        @Args('input') input: RefreshInput,
+    ): Promise<TokenDataAttributes> {
         return this.authService.refresh(input.token, userId)
     }
 }

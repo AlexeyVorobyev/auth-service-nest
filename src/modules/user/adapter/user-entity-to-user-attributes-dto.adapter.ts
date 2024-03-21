@@ -1,6 +1,6 @@
 import { UserEntity } from '../entity/user.entity'
 import { Builder } from 'builder-pattern'
-import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { UserAttributes } from '@modules/user/attributes/user.attributes'
 import {
     externalServiceEntityToExternalServiceAttributesAdapter,
 } from '@modules/external-service/adapter/external-service-entity-to-external-service-attributes.adapter'

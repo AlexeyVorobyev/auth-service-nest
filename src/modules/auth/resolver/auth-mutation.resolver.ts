@@ -1,7 +1,7 @@
 import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common'
 import { AuthService } from '@modules/auth/auth.serivce'
-import { SignUpInput } from '@modules/auth/input/sign-up.input'
+import { BaseSignUpInput } from '@modules/auth/input/base-sign-up.input'
 import { TokenDataAttributes } from '@modules/auth/attributes/token-data.attributes'
 import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
 import { ActiveUser } from '@modules/common/decorator/active-user.decorator'
@@ -9,25 +9,40 @@ import { IdInput } from '@modules/graphql/input/id.input'
 import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { Roles } from '@modules/common/decorator/roles.decorator'
 import { ERole } from '@modules/common/enum/role.enum'
+import { ExternalServiceSignUpInput } from '@modules/auth/input/external-service-sign-up.input'
+import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 @ObjectType('TAuthMutations')
 export class AuthMutations {
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => AuthMutations)
 export class AuthMutationResolver {
     constructor(
-        @Inject(AuthService)
         private authService: AuthService,
     ) {
     }
 
     @ResolveField(() => TokenDataAttributes, {
-        name: 'signUp',
-        description: 'Provides functionality of sign up to system.',
+        name: 'baseSignUp',
+        description: 'Provides functionality of sign up to system',
     })
-    async signUp(@Args('input') input: SignUpInput): Promise<TokenDataAttributes> {
-        return this.authService.signUp(input)
+    async baseSignUp(@Args('input') input: BaseSignUpInput): Promise<TokenDataAttributes> {
+        return this.authService.baseSignUp(input)
+    }
+
+    @UseGuards(JwtGraphQLAuthGuard)
+    @ResolveField(() => DefaultAttributes, {
+        name: 'externalServiceSignUp',
+        description: 'Provides functionality of sign up to particular external service in the system',
+    })
+    async externalServiceSignUp(
+        @Args('input') input: ExternalServiceSignUpInput,
+        @ActiveUser('id') userId: string,
+    ){
+        return this.authService.externalServiceSignUp(input, userId)
     }
 
     @UseGuards(JwtGraphQLAuthGuard)
@@ -37,7 +52,6 @@ export class AuthMutationResolver {
     })
     async sendConfirmationMailMe(@ActiveUser('id') userId: string) {
         await this.authService.sendConfirmationMail(userId)
-        return true
     }
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
@@ -48,6 +62,5 @@ export class AuthMutationResolver {
     })
     async sendConfirmationMail(@Args('input') input: IdInput) {
         await this.authService.sendConfirmationMail(input.id)
-        return true
     }
 }

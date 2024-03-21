@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class VerifyCallbackDto {
+export class VerifyCallbackRestInput {
 	@ApiProperty({
 		description: 'Verification JWT token',
 		required: true,

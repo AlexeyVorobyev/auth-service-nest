@@ -14,6 +14,9 @@ export class ExternalRoleEntity extends DefaultDatabaseEntity<ExternalRoleEntity
     @Column({ nullable: true })
     description?: string
 
+    @Column({ default: false })
+    default: boolean
+
     @Column({
         name: 'recognition_key',
         unique: true,

@@ -1,21 +1,10 @@
-import { DefaultDatabaseEntity } from '@modules/database/entity/default-database.entity'
+import { OperationMetaAttributes } from '@modules/graphql/attributes/operation-meta.attributes'
 import { Field, ObjectType } from '@nestjs/graphql'
-import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
-@ObjectType()
-export abstract class DefaultAttributes implements DefaultDatabaseEntity<DefaultAttributes> {
-    @Field(() => UUID, {
-        description: 'Entity id in UUID format',
+@ObjectType('TDefaultAttributes')
+export class DefaultAttributes {
+    @Field(() => OperationMetaAttributes!, {
+        description: 'Status metadata',
     })
-    public id: string
-
-    @Field(() => Date, {
-        description: 'Entity creation datetime',
-    })
-    public createdAt: Date
-
-    @Field(() => Date, {
-        description: 'Entity last update datetime',
-    })
-    public updatedAt: Date
+    operationMeta?: OperationMetaAttributes
 }

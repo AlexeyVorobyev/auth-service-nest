@@ -1,7 +1,11 @@
 import { listAttributesFactory } from '@modules/graphql/attributes/list.attributes'
 import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
-import { ObjectType } from '@nestjs/graphql'
+import { ObjectType, OmitType } from '@nestjs/graphql'
+
+@ObjectType('TExternalServiceAttributesOmitOperationMeta')
+export class ExternalServiceListAttributesOmitOperationMeta extends OmitType(ExternalServiceAttributes, ['operationMeta']) {
+}
 
 @ObjectType('TExternalServiceListAttributes')
-export class ExternalServiceListAttributes extends listAttributesFactory<ExternalServiceAttributes>(ExternalServiceAttributes) {
+export class ExternalServiceListAttributes extends listAttributesFactory<ExternalServiceListAttributesOmitOperationMeta>(ExternalServiceListAttributesOmitOperationMeta) {
 }

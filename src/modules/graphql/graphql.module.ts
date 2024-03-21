@@ -20,7 +20,7 @@ import { GraphQLFormattedError } from 'graphql/error'
             resolvers: { UUID: UUID },
             sortSchema: true,
             playground: true,
-            fieldResolverEnhancers: ['guards'],
+            fieldResolverEnhancers: ['guards', 'interceptors'],
             formatError: (formattedError) => graphqlFormattedErrorToGraphqlErrorAttributesAdapter(formattedError) as unknown as GraphQLFormattedError
         }),
     ],

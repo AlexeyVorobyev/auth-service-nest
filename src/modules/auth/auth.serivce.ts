@@ -13,30 +13,35 @@ import { JwtService } from '@modules/jwt/jwt.service'
 import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
 import { UserEntity } from '@modules/user/entity/user.entity'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
-import { SignUpInput } from '@modules/auth/input/sign-up.input'
+import { BaseSignUpInput } from '@modules/auth/input/base-sign-up.input'
 import { TokenDataAttributes } from '@modules/auth/attributes/token-data.attributes'
 import { SignInInput } from '@modules/auth/input/sign-in.input'
 import { RefreshInput } from '@modules/auth/input/refresh.input'
+import { ExternalServiceSignUpInput } from '@modules/auth/input/external-service-sign-up.input'
+import { ExternalServiceService } from '@modules/external-service/external-service.service'
+import { ExternalServiceRepository } from '@modules/external-service/repository/external-service.repository'
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject(jwtConfig.KEY)
-        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+        private jwtConfiguration: ConfigType<typeof jwtConfig>,
         @Inject(BcryptService)
-        private readonly bcryptService: BcryptService,
+        private bcryptService: BcryptService,
         @Inject(UserService)
-        private readonly userService: UserService,
+        private userService: UserService,
+        @Inject(ExternalServiceRepository)
+        private externalServiceRepository: ExternalServiceRepository,
         @Inject(UserRepository)
-        private readonly userRepository: UserRepository,
+        private userRepository: UserRepository,
         @Inject(EmailService)
-        private readonly emailService: EmailService,
+        private emailService: EmailService,
         @Inject(JwtService)
-        private readonly jwtAlexService: JwtService,
+        private jwtAlexService: JwtService,
     ) {
     }
 
-    async signUp(input: SignUpInput): Promise<TokenDataAttributes> {
+    async baseSignUp(input: BaseSignUpInput): Promise<TokenDataAttributes> {
         const userCreateInput = Builder<UserCreateInput>()
         userCreateInput
             .email(input.email)
@@ -50,6 +55,43 @@ export class AuthService {
         const userEntityInstance = await this.userRepository.getOne({ id: createdUserAttributes.id })
 
         return this.getTokenDataAttributes(userEntityInstance)
+    }
+
+    async externalServiceSignUp(input: ExternalServiceSignUpInput, userId: string): Promise<void> {
+        const userEntityInstance = await this.userRepository.getOne({ id: userId })
+
+        const userExternalServicesExternalKeys = userEntityInstance.externalServices
+            .map((item) => item.recognitionKey)
+        if (userExternalServicesExternalKeys.includes(input.recognitionKey)) {
+            Builder(UniversalError)
+                .messages([
+                    'User already signed up to to this external service',
+                    `External service recognition key: ${input.recognitionKey}`,
+                ])
+                .exceptionBaseClass(EUniversalExceptionType.conflict)
+                .build().throw()
+        }
+
+        const externalServiceToSignUp = await this.externalServiceRepository
+            .getOne({ recognitionKey: input.recognitionKey })
+
+        await this.userService.update(
+            userId,
+            {
+                externalServicesId: [
+                    ...userEntityInstance.externalServices
+                        .map((item) => item.id),
+                    externalServiceToSignUp.id,
+                ],
+                externalRolesId: [
+                    ...userEntityInstance.externalRoles
+                        .map((item) => item.id),
+                    ...externalServiceToSignUp.externalRoles
+                        .filter((item) => item.default)
+                        .map((item) => item.id),
+                ],
+            },
+        )
     }
 
     async signIn(input: SignInInput): Promise<TokenDataAttributes> {

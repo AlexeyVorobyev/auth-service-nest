@@ -1,7 +1,7 @@
 import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
-import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { UserAttributes } from '@modules/user/attributes/user.attributes'
 import { UserService } from '@modules/user/user.service'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common'
 import { IdInput } from '@modules/graphql/input/id.input'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 import { UserUpdateInput } from '@modules/user/input/user-update.input'
@@ -11,12 +11,14 @@ import { ERole } from '@modules/common/enum/role.enum'
 import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { ActiveGraphQLUser } from '@modules/common/decorator/active-grahql-user-decorator'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 
 @ObjectType('TUserMutations')
 export class UserMutations {
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => UserMutations)
 export class UserMutationResolver {
     constructor(

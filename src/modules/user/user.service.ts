@@ -12,7 +12,7 @@ import { Builder } from 'builder-pattern'
 import { userEntityToUserAttributesDtoAdapter } from '@modules/user/adapter/user-entity-to-user-attributes-dto.adapter'
 import { UserListInput } from '@modules/user/input/user-list.input'
 import { UserListAttributes } from '@modules/user/attributes/user-list.attributes'
-import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { UserAttributes } from '@modules/user/attributes/user.attributes'
 import { ListMetaAttributes } from '@modules/graphql/attributes/list-meta.attributes'
 import { UserCreateInput } from '@modules/user/input/user-create.input'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
@@ -140,12 +140,14 @@ export class UserService {
         return userEntityToUserAttributesDtoAdapter(createdUserEntityInstance)
     }
 
-    async update(
-        id: string,
+    async updateMethodRoleShell(
+        userToUpdate: UserEntity,
         input: UserUpdatePayloadInput,
-        role: ERole,
-    ): Promise<UserAttributes> {
-        const userToUpdate = await this.userRepository.getOne({ id: id })
+        role?: ERole,
+    ) {
+        if (!role) {
+            return
+        }
 
         const allowedRoles = this.checkPrivileges(role)
 
@@ -170,16 +172,23 @@ export class UserService {
                 .exceptionBaseClass(EUniversalExceptionType.forbidden)
                 .build().throw()
         }
+    }
+
+    async update(
+        id: string,
+        input: UserUpdatePayloadInput,
+        role?: ERole,
+    ): Promise<UserAttributes> {
+        const userToUpdate = await this.userRepository.getOne({ id: id })
+
+        /**Checking role requirements to this action*/
+        await this.updateMethodRoleShell(userToUpdate,input,role)
 
         const externalServicesToUpdate = input.externalServicesId
             ? await this.externalServiceRepository.getAll({
                 id: In(input.externalServicesId),
             })
             : undefined
-
-        const userServicesId = externalServicesToUpdate
-            ? externalServicesToUpdate.map((item) => item.id)
-            : userToUpdate.externalServices.map((item) => item.id)
 
         const externalRolesToUpdate = input.externalRolesId
             ? await this.externalRoleRepository.getAll({
@@ -188,8 +197,14 @@ export class UserService {
             : undefined
 
         if (externalRolesToUpdate) {
+            const externalServicesToUpdateId =  externalServicesToUpdate?.map((item) => item.id)
+
+            const userExternalServicesId = externalServicesToUpdate
+                ? externalServicesToUpdate.map((item) => item.id)
+                : userToUpdate.externalServices.map((item) => item.id)
+
             externalRolesToUpdate.forEach((item) => {
-                if (!userServicesId.includes(item.externalServiceId)) {
+                if (![...userExternalServicesId, ...externalServicesToUpdateId].includes(item.externalServiceId)) {
                     Builder(UniversalError)
                         .messages([
                             CONFLICT_ERROR_MESSAGE,

@@ -2,14 +2,14 @@ import { IsEmail, IsNotEmpty, Matches, MaxLength, MinLength } from 'class-valida
 import { Field, InputType } from '@nestjs/graphql'
 
 @InputType('TSignUpInput')
-export class SignUpInput {
+export class BaseSignUpInput {
     @IsEmail()
     @MaxLength(255)
     @IsNotEmpty()
     @Field(() => String!, {
         description: 'Email of user'
     })
-    readonly email: string
+    email: string
 
     @MinLength(8, {
         message: 'password too short'
@@ -24,5 +24,5 @@ export class SignUpInput {
     @Field(() => String!, {
         description: 'Password of user',
     })
-    readonly password: string
+    password: string
 }

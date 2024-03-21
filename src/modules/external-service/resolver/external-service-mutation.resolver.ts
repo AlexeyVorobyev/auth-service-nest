@@ -1,5 +1,5 @@
 import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common'
 import { ExternalServiceService } from '@modules/external-service/external-service.service'
 import { Roles } from '@modules/common/decorator/roles.decorator'
 import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
@@ -9,12 +9,14 @@ import { ExternalServiceAttributes } from '@modules/external-service/attributes/
 import { ExternalServiceCreateInput } from '@modules/external-service/input/external-service-create.input'
 import { ExternalServiceUpdateInput } from '@modules/external-service/input/external-service-update.input'
 import { IdInput } from '@modules/graphql/input/id.input'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 
 @ObjectType('TExternalServiceMutations')
 export class ExternalServiceMutations {
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => ExternalServiceMutations)
 export class ExternalServiceMutationResolver {
     constructor(

@@ -1,9 +1,12 @@
-import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
-import { Field, ObjectType } from '@nestjs/graphql'
-import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
+import { DefaultEntityAttributes } from '@modules/graphql/attributes/default-entity.attributes'
+import { Field, ObjectType, OmitType } from '@nestjs/graphql'
+import {
+    ExternalServiceAttributes,
+    ExternalServiceAttributesOmitExternalRoles,
+} from '@modules/external-service/attributes/external-service.attributes'
 
 @ObjectType('TExternalRoleAttributes')
-export class ExternalRoleAttributes extends DefaultAttributes {
+export class ExternalRoleAttributes extends DefaultEntityAttributes {
     @Field(() => String!, {
         description: 'Name of external role',
     })
@@ -15,34 +18,23 @@ export class ExternalRoleAttributes extends DefaultAttributes {
     })
     description?: string
 
+    @Field(() => Boolean, {
+        description: 'Is role default',
+    })
+    default: boolean
+
     @Field(() => String!, {
         description: 'Recognition key of external role',
         nullable: true
     })
     recognitionKey: string
 
-    @Field(() => ExternalServiceAttributes, {
+    @Field(() => ExternalServiceAttributesOmitExternalRoles, {
         description: 'External service attributes'
     })
-    externalService: ExternalServiceAttributes
+    externalService: ExternalServiceAttributesOmitExternalRoles
 }
 
 @ObjectType('TExternalRoleAttributesOmitExternalService')
-export class ExternalRoleAttributesOmitExternalService extends DefaultAttributes {
-    @Field(() => String!, {
-        description: 'Name of external role',
-    })
-    name: string
-
-    @Field(() => String!, {
-        description: 'Recognition key of external role',
-        nullable: true
-    })
-    recognitionKey: string
-
-    @Field(() => String, {
-        description: 'Description of external role',
-        nullable: true
-    })
-    description?: string
+export class ExternalRoleAttributesOmitExternalService extends OmitType(ExternalRoleAttributes, ['externalService']) {
 }

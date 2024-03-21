@@ -1,11 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 import { ERole } from '@modules/common/enum/role.enum'
-import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
+import { DefaultEntityAttributes } from '@modules/graphql/attributes/default-entity.attributes'
 import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
 import { ExternalRoleAttributes } from '@modules/external-role/attributes/external-role.attributes'
 
 @ObjectType('TUserAttributes')
-export class UserAttributes extends DefaultAttributes {
+export class UserAttributes extends DefaultEntityAttributes {
     @Field(() => String!, {
         description: 'Email of user',
     })

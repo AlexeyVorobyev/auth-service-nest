@@ -1,26 +1,28 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
+import { OperationMetaAttributes } from '@modules/graphql/attributes/operation-meta.attributes'
+import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
 
 @ObjectType('TTokenDataAttributes')
-export class TokenDataAttributes {
+export class TokenDataAttributes extends DefaultAttributes {
     @Field(() => String!, {
         description: 'Access JWT token',
     })
-    readonly accessToken: string
+    accessToken: string
 
     @Field(() => String!, {
         description: 'Timestamp, when access token will expire in UTC',
     })
-    readonly accessTokenTTL: number
+    accessTokenTTL: number
 
     @Field(() => String!, {
         description: 'Refresh JWT token',
     })
-    readonly refreshToken: string
+    refreshToken: string
 
     @Field(() => String!, {
         description: 'Timestamp, when refresh token will expire in UTC',
     })
-    readonly refreshTokenTTL: number
+    refreshTokenTTL: number
 }

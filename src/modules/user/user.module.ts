@@ -9,6 +9,7 @@ import { UserQueryResolver } from '@modules/user/resolver/user-query.resolver'
 import { JwtModule } from '@modules/jwt/jwt.module'
 import { UserMutationResolver } from '@modules/user/resolver/user-mutation.resolver'
 import { ExternalServiceModule } from '@modules/external-service/external-service.module'
+import { UserController } from '@modules/user/user.controller'
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { ExternalServiceModule } from '@modules/external-service/external-servic
         UserQueryResolver,
         UserMutationResolver,
     ],
+    controllers: [UserController],
     exports: [
         UserService,
         UserRepository,

@@ -8,12 +8,12 @@ export class SignInInput {
     @Field(() => String!, {
         description: 'Email of user'
     })
-    readonly email: string
+    email: string
 
     @IsNotEmpty()
     @IsString()
     @Field(() => String!, {
         description: 'Password of user',
     })
-    readonly password: string
+    password: string
 }

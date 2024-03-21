@@ -1,12 +1,12 @@
-import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
-import { Field, ObjectType } from '@nestjs/graphql'
+import { DefaultEntityAttributes } from '@modules/graphql/attributes/default-entity.attributes'
+import { Field, ObjectType, OmitType } from '@nestjs/graphql'
 import {
     ExternalRoleAttributes,
     ExternalRoleAttributesOmitExternalService,
 } from '@modules/external-role/attributes/external-role.attributes'
 
 @ObjectType('TExternalServiceAttributes')
-export class ExternalServiceAttributes extends DefaultAttributes {
+export class ExternalServiceAttributes extends DefaultEntityAttributes {
     @Field(() => String!, {
         description: 'Name of external service',
     })
@@ -20,7 +20,6 @@ export class ExternalServiceAttributes extends DefaultAttributes {
 
     @Field(() => String!, {
         description: 'Recognition key of external service',
-        nullable: true
     })
     recognitionKey: string
 
@@ -28,4 +27,8 @@ export class ExternalServiceAttributes extends DefaultAttributes {
         description: 'External role attributes',
     })
     externalRoles: ExternalRoleAttributesOmitExternalService[]
+}
+
+@ObjectType('TExternalServiceAttributesOmitExternalRoles')
+export class ExternalServiceAttributesOmitExternalRoles extends OmitType(ExternalServiceAttributes, ['externalRoles']) {
 }

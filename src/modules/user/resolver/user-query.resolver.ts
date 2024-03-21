@@ -1,7 +1,7 @@
-import { Args, ObjectType, Query, ResolveField, Resolver } from '@nestjs/graphql'
-import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { Args, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
+import { UserAttributes } from '@modules/user/attributes/user.attributes'
 import { UserService } from '@modules/user/user.service'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common'
 import { UserListAttributes } from '@modules/user/attributes/user-list.attributes'
 import { UserListInput } from '@modules/user/input/user-list.input'
 import { IdInput } from '@modules/graphql/input/id.input'
@@ -10,11 +10,13 @@ import { ERole } from '@modules/common/enum/role.enum'
 import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { ActiveGraphQLUser } from '@modules/common/decorator/active-grahql-user-decorator'
 import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 @ObjectType('TUserQueries')
 export class UserQueries {
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => UserQueries)
 export class UserQueryResolver {
     constructor(

@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common'
 import { DatabaseModule } from '@modules/database/database.module'
-import { JwtModule } from '@modules/jwt/jwt.module'
 import { ExternalRoleModule } from '@modules/external-role/external-role.module'
-import { BcryptModule } from '@modules/bcrypt/bcrypt.module'
 import { UserModule } from '@modules/user/user.module'
 import { AuthModule } from '@modules/auth/auth.module'
 import { EmailModule } from '@modules/email/email.module'
@@ -11,6 +9,8 @@ import { ExternalServiceModule } from '@modules/external-service/external-servic
 import { GraphqlModule } from '@modules/graphql/graphql.module'
 import { RootResolver } from '@src/app.resolver'
 import { ConfigModule } from '@modules/config/config.module'
+import { APP_INTERCEPTOR } from '@nestjs/core'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 @Module({
     imports: [
@@ -24,7 +24,9 @@ import { ConfigModule } from '@modules/config/config.module'
         CommandModule,
         GraphqlModule,
     ],
-    providers: [RootResolver]
+    providers: [
+        RootResolver,
+    ],
 })
 export class AppModule {
 }

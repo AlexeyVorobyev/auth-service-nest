@@ -1,5 +1,5 @@
 import { Args, Field, ObjectType, ResolveField, Resolver } from '@nestjs/graphql'
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, UseInterceptors } from '@nestjs/common'
 import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
 import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { Roles } from '@modules/common/decorator/roles.decorator'
@@ -7,15 +7,17 @@ import { ERole } from '@modules/common/enum/role.enum'
 import { ExternalServiceService } from '@modules/external-service/external-service.service'
 import { ExternalServiceListInput } from '@modules/external-service/input/external-service-list.input'
 import { ExternalServiceListAttributes } from '@modules/external-service/attributes/external-service-list.attributes'
-import { UserAttributes } from '@modules/user/attributes/user-attributes'
+import { UserAttributes } from '@modules/user/attributes/user.attributes'
 import { IdInput } from '@modules/graphql/input/id.input'
 import { ExternalServiceAttributes } from '@modules/external-service/attributes/external-service.attributes'
+import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
 
 @ObjectType('TExternalServiceQueries')
 export class ExternalServiceQueries {
     id: string
 }
 
+@UseInterceptors(OperationMetaInterceptor)
 @Resolver(() => ExternalServiceQueries)
 export class ExternalServiceQueryResolver {
     constructor(
