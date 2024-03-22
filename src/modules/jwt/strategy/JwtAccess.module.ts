@@ -1,7 +1,6 @@
 import { JwtModule, JwtService } from '@nestjs/jwt'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-const ms = require('ms')
 
 @Module({
     imports: [
@@ -11,7 +10,7 @@ const ms = require('ms')
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get('jwt.accessSecret'),
                 signOptions: {
-                    expiresIn: ms(configService.get('jwt.accessTokenTtl')),
+                    expiresIn: configService.get<number>('jwt.accessTokenTtl') / (1000 * 2),
                 },
             }),
         })],
