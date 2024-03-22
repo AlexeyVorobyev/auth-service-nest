@@ -10,7 +10,7 @@ import { GraphQLFormattedError } from 'graphql/error'
 
 @Module({
     imports: [
-        GraphQLModule.forRoot<ApolloDriverConfig>({
+        GraphQLModule.forRoot({
             context: ({ req, connection }) => (
                 connection
                     ? { req: connection.context }
@@ -20,6 +20,10 @@ import { GraphQLFormattedError } from 'graphql/error'
             resolvers: { UUID: UUID },
             sortSchema: true,
             playground: true,
+            cors: {
+                credentials: true,
+                origin: true,
+            },
             fieldResolverEnhancers: ['guards', 'interceptors'],
             formatError: (formattedError) => graphqlFormattedErrorToGraphqlErrorAttributesAdapter(formattedError) as unknown as GraphQLFormattedError
         }),
