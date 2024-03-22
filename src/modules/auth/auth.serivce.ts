@@ -117,10 +117,10 @@ export class AuthService {
         return this.getTokenDataAttributes(userEntityInstance)
     }
 
-    async refresh(token: string, userId: string): Promise<TokenDataAttributes> {
-        await this.jwtAlexService.verifyToken(token, EJwtStrategy.refresh)
+    async refresh(token: string): Promise<TokenDataAttributes> {
+        const tokenPayload = await this.jwtAlexService.verifyToken(token, EJwtStrategy.refresh)
 
-        const userEntityInstance = await this.userRepository.getOne({ id: userId })
+        const userEntityInstance = await this.userRepository.getOne({ id: tokenPayload.id})
         if (!userEntityInstance) {
             Builder(UniversalError)
                 .messages(['Invalid userId'])
@@ -135,9 +135,9 @@ export class AuthService {
         const TokenDataAttributesBuilder = Builder<TokenDataAttributes>()
         TokenDataAttributesBuilder
             .accessToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.access))
-            .accessTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.accessTokenTtl / 1000)
+            .accessTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.accessTokenTtl)
             .refreshToken(await this.jwtAlexService.generateToken(userEntityInstance, EJwtStrategy.refresh))
-            .refreshTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.refreshTokenTtl / 1000)
+            .refreshTokenTTL(Date.parse(new Date().toUTCString()) + this.jwtConfiguration.refreshTokenTtl)
         return TokenDataAttributesBuilder.build()
     }
 

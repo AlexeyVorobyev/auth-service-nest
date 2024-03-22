@@ -32,9 +32,8 @@ export class AuthQueryResolver {
         description: 'Provides functionality of refreshing tokens.',
     })
     async refresh(
-        @ActiveUser('id') userId: string,
         @Args('input') input: RefreshInput,
     ): Promise<TokenDataAttributes> {
-        return this.authService.refresh(input.token, userId)
+        return this.authService.refresh(input.token)
     }
 }

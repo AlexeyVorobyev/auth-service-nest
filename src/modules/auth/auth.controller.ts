@@ -109,10 +109,9 @@ export class AuthController {
     })
     @Post('refresh')
     async refresh(
-        @ActiveUser('id') userId: string,
         @Body() input: RefreshRestInput,
     ): Promise<TokenDataRestAttributes> {
-        return this.authService.refresh(input.token, userId)
+        return this.authService.refresh(input.token)
     }
 
     @ApiUnauthorizedResponse({
