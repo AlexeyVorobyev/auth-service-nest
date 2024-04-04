@@ -146,6 +146,9 @@ type TExternalRoleAttributesOmitOperationMeta {
 }
 
 input TExternalRoleCreateInput {
+  """Is role default"""
+  default: Boolean
+
   """Description of external role"""
   description: String
 
@@ -216,6 +219,9 @@ input TExternalRoleUpdateInput {
 }
 
 input TExternalRoleUpdatePayloadInput {
+  """Is role default"""
+  default: Boolean
+
   """Description of external role"""
   description: String
 

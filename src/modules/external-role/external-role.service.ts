@@ -37,7 +37,7 @@ export class ExternalRoleService {
                 input.sort,
                 Builder<ExternalRoleEntity>()
                     .id(null).name(null).description(null)
-                    .createdAt(null).updatedAt(null)
+                    .createdAt(null).updatedAt(null).default(null)
                     .build(),
             ),
             input.page,
@@ -86,6 +86,7 @@ export class ExternalRoleService {
             .description(input.description)
             .externalServiceId(input.externalServiceId)
             .recognitionKey(input.recognitionKey)
+            .default(input.default || false)
 
         return await this.externalRoleRepository.saveOne(externalRoleEntityBuilder.build())
     }
@@ -97,6 +98,7 @@ export class ExternalRoleService {
                 .description(input.description)
                 .name(input.name)
                 .externalServiceId(input.externalServiceId)
+                .default(input.default)
                 .build(),
         )
 

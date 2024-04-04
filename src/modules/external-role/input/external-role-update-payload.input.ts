@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator'
+import {IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID} from 'class-validator'
 import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 
 @InputType('TExternalRoleUpdatePayloadInput')
@@ -19,6 +19,14 @@ export class ExternalRoleUpdatePayloadInput {
     @IsOptional()
     @IsString()
     description?: string
+
+    @Field(() => Boolean, {
+        description: 'Is role default',
+        nullable: true
+    })
+    @IsOptional()
+    @IsBoolean()
+    default?: boolean
 
     @Field(() => UUID, {
         description: 'Relation with external service',
