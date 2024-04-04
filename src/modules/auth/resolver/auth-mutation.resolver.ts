@@ -34,7 +34,7 @@ export class AuthMutationResolver {
     }
 
     @UseGuards(JwtGraphQLAuthGuard)
-    @ResolveField(() => DefaultAttributes, {
+    @ResolveField(() => TokenDataAttributes, {
         name: 'externalServiceSignUp',
         description: 'Provides functionality of sign up to particular external service in the system',
     })

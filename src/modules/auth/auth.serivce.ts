@@ -1,25 +1,23 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { ConfigType } from '@nestjs/config'
+import {Inject, Injectable} from '@nestjs/common'
+import {ConfigType} from '@nestjs/config'
 import jwtConfig from '../config/config/jwt.config'
-import { BcryptService } from '../bcrypt/bcrypt.service'
-import { Builder } from 'builder-pattern'
-import { DEFAULT_ROLE } from '../common/constant'
-import { UniversalError } from '../common/class/universal-error'
-import { EUniversalExceptionType } from '../common/enum/exceptions'
-import { UserService } from '../user/user.service'
-import { UserRepository } from '../user/repository/user.repository'
-import { EmailService } from '@modules/email/email.service'
-import { JwtService } from '@modules/jwt/jwt.service'
-import { EJwtStrategy } from '@modules/jwt/enum/jwt-strategy.enum'
-import { UserEntity } from '@modules/user/entity/user.entity'
-import { UserCreateInput } from '@modules/user/input/user-create.input'
-import { BaseSignUpInput } from '@modules/auth/input/base-sign-up.input'
-import { TokenDataAttributes } from '@modules/auth/attributes/token-data.attributes'
-import { SignInInput } from '@modules/auth/input/sign-in.input'
-import { RefreshInput } from '@modules/auth/input/refresh.input'
-import { ExternalServiceSignUpInput } from '@modules/auth/input/external-service-sign-up.input'
-import { ExternalServiceService } from '@modules/external-service/external-service.service'
-import { ExternalServiceRepository } from '@modules/external-service/repository/external-service.repository'
+import {BcryptService} from '../bcrypt/bcrypt.service'
+import {Builder} from 'builder-pattern'
+import {DEFAULT_ROLE} from '../common/constant'
+import {UniversalError} from '../common/class/universal-error'
+import {EUniversalExceptionType} from '../common/enum/exceptions'
+import {UserService} from '../user/user.service'
+import {UserRepository} from '../user/repository/user.repository'
+import {EmailService} from '@modules/email/email.service'
+import {JwtService} from '@modules/jwt/jwt.service'
+import {EJwtStrategy} from '@modules/jwt/enum/jwt-strategy.enum'
+import {UserEntity} from '@modules/user/entity/user.entity'
+import {UserCreateInput} from '@modules/user/input/user-create.input'
+import {BaseSignUpInput} from '@modules/auth/input/base-sign-up.input'
+import {TokenDataAttributes} from '@modules/auth/attributes/token-data.attributes'
+import {SignInInput} from '@modules/auth/input/sign-in.input'
+import {ExternalServiceSignUpInput} from '@modules/auth/input/external-service-sign-up.input'
+import {ExternalServiceRepository} from '@modules/external-service/repository/external-service.repository'
 
 @Injectable()
 export class AuthService {
@@ -54,10 +52,10 @@ export class AuthService {
 
         const userEntityInstance = await this.userRepository.getOne({ id: createdUserAttributes.id })
 
-        return this.getTokenDataAttributes(userEntityInstance)
+        return await this.getTokenDataAttributes(userEntityInstance)
     }
 
-    async externalServiceSignUp(input: ExternalServiceSignUpInput, userId: string): Promise<void> {
+    async externalServiceSignUp(input: ExternalServiceSignUpInput, userId: string): Promise<TokenDataAttributes> {
         const userEntityInstance = await this.userRepository.getOne({ id: userId })
 
         const userExternalServicesExternalKeys = userEntityInstance.externalServices
@@ -92,6 +90,10 @@ export class AuthService {
                 ],
             },
         )
+
+        const updatedUserEntityInstance = await this.userRepository.getOne({ id: userEntityInstance.id })
+
+        return await this.getTokenDataAttributes(updatedUserEntityInstance)
     }
 
     async signIn(input: SignInInput): Promise<TokenDataAttributes> {
@@ -114,7 +116,7 @@ export class AuthService {
                 .build().throw()
         }
 
-        return this.getTokenDataAttributes(userEntityInstance)
+        return await this.getTokenDataAttributes(userEntityInstance)
     }
 
     async refresh(token: string): Promise<TokenDataAttributes> {
@@ -128,7 +130,7 @@ export class AuthService {
                 .build().throw()
         }
 
-        return this.getTokenDataAttributes(userEntityInstance)
+        return await this.getTokenDataAttributes(userEntityInstance)
     }
 
     private async getTokenDataAttributes(userEntityInstance: UserEntity): Promise<TokenDataAttributes> {

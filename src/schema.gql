@@ -39,7 +39,7 @@ type TAuthMutations {
   """
   Provides functionality of sign up to particular external service in the system
   """
-  externalServiceSignUp(input: TExternalServiceSignUpInput!): TDefaultAttributes!
+  externalServiceSignUp(input: TExternalServiceSignUpInput!): TTokenDataAttributes!
 
   """sends email to user to make account verified"""
   sendConfirmationEmail(input: TIdInput!): Boolean!
@@ -62,11 +62,6 @@ input TDatePeriodInput {
 
   """Start date"""
   startDate: DateTime
-}
-
-type TDefaultAttributes {
-  """Status metadata"""
-  operationMeta: TOperationMetaAttributes!
 }
 
 type TExternalRoleAttributes {

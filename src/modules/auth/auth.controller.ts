@@ -1,28 +1,24 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Res, UseGuards } from '@nestjs/common'
+import {Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Res, UseGuards} from '@nestjs/common'
 import {
     ApiBadRequestResponse,
-    ApiBearerAuth, ApiConflictResponse,
+    ApiBearerAuth,
+    ApiConflictResponse,
     ApiCreatedResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import { Public } from '../common/decorator/public.decorator'
-import { AuthService } from './auth.serivce'
-import { ActiveUser } from '../common/decorator/active-user.decorator'
-import { UniversalExceptionDto } from '../common/dto/universal-exception.dto'
-import { VerifyCallbackRestInput } from '@modules/auth/input/verify-callback-rest.input'
-import { JwtRestAuthGuard } from '@modules/common/guard/jwt-rest-auth.guard'
-import { RefreshRestInput } from '@modules/auth/input/refresh-rest.input'
-import { TokenDataRestAttributes } from '@modules/auth/attributes/token-data-rest.attributes'
-import { BaseSignUpRestInput } from '@modules/auth/input/base-sign-up-rest.input'
-import { SignInRestInput } from '@modules/auth/input/sign-in-rest.input'
-import { JwtGraphQLAuthGuard } from '@modules/common/guard/jwt-graphql-auth.guard'
-import { Args, ResolveField } from '@nestjs/graphql'
-import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
-import { ExternalServiceSignUpInput } from '@modules/auth/input/external-service-sign-up.input'
-import { ExternalServiceSignUpRestInput } from '@modules/auth/input/external-service-sign-up-rest.input'
+import {AuthService} from './auth.serivce'
+import {ActiveUser} from '../common/decorator/active-user.decorator'
+import {UniversalExceptionDto} from '../common/dto/universal-exception.dto'
+import {VerifyCallbackRestInput} from '@modules/auth/input/verify-callback-rest.input'
+import {JwtRestAuthGuard} from '@modules/common/guard/jwt-rest-auth.guard'
+import {RefreshRestInput} from '@modules/auth/input/refresh-rest.input'
+import {TokenDataRestAttributes} from '@modules/auth/attributes/token-data-rest.attributes'
+import {BaseSignUpRestInput} from '@modules/auth/input/base-sign-up-rest.input'
+import {SignInRestInput} from '@modules/auth/input/sign-in-rest.input'
+import {ExternalServiceSignUpRestInput} from '@modules/auth/input/external-service-sign-up-rest.input'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,6 +38,7 @@ export class AuthController {
     })
     @ApiCreatedResponse({
         description: 'User has been successfully signed up to base service',
+        type: TokenDataRestAttributes
     })
     @ApiOperation({
         summary: 'Sign-up endpoint',
@@ -62,6 +59,7 @@ export class AuthController {
     })
     @ApiCreatedResponse({
         description: 'User has been successfully signed up to external service',
+        type: TokenDataRestAttributes
     })
     @ApiOperation({
         summary: 'External service sign-up endpoint',
@@ -73,7 +71,7 @@ export class AuthController {
     async externalServiceSignUp(
         @Body() input: ExternalServiceSignUpRestInput,
         @ActiveUser('id') userId: string,
-    ){
+    ): Promise<TokenDataRestAttributes> {
         return this.authService.externalServiceSignUp(input, userId)
     }
 
