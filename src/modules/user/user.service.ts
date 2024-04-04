@@ -197,7 +197,7 @@ export class UserService {
             : undefined
 
         if (externalRolesToUpdate) {
-            const externalServicesToUpdateId =  externalServicesToUpdate?.map((item) => item.id)
+            const externalServicesToUpdateId = externalServicesToUpdate?.map((item) => item.id) || []
 
             const userExternalServicesId = externalServicesToUpdate
                 ? externalServicesToUpdate.map((item) => item.id)
