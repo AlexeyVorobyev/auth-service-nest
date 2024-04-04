@@ -64,8 +64,12 @@ export class UserService {
             input.page,
             input.perPage,
             {
-                externalServices: true,
-                externalRoles: true,
+                externalServices: {
+                    externalRoles: true
+                },
+                externalRoles: {
+                    externalService: true
+                },
             },
         )
 
@@ -92,8 +96,12 @@ export class UserService {
         const user = await this.userRepository.getOne(
             { id: id },
             {
-                externalServices: true,
-                externalRoles: true,
+                externalServices: {
+                    externalRoles: true
+                },
+                externalRoles: {
+                    externalService: true
+                },
             },
         )
         return userEntityToUserAttributesDtoAdapter(user)
