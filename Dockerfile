@@ -21,6 +21,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/dist ./dist
+COPY /keys/rsa.key ./keys/rsa.key
+COPY /keys/rsa.key.pub ./keys/rsa.key.pub
 
 ENV ADMIN_PASSWORD admin
 ENV ADMIN_EMAIL admin@admin.com

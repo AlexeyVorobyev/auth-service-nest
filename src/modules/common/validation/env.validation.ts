@@ -44,10 +44,6 @@ class EnvironmentVariables {
 
 	@IsString()
 	@IsNotEmpty()
-	JWT_ACCESS_TOKEN_SECRET: string
-
-	@IsString()
-	@IsNotEmpty()
 	JWT_REFRESH_TOKEN_SECRET: string
 
 	@IsString()

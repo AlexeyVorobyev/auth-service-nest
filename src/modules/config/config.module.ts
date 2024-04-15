@@ -12,7 +12,13 @@ import {ConfigModule as ConfigNestModule} from '@nestjs/config'
         ConfigNestModule.forRoot({
             envFilePath: `env/.env.${process.env.NODE_ENV}`,
             isGlobal: true,
-            load: [appConfig, databaseConfig, swaggerConfig, JwtConfig, emailConfig],
+            load: [
+              appConfig,
+                databaseConfig,
+                swaggerConfig,
+                JwtConfig,
+                emailConfig
+            ],
             validate: validate,
         }),
     ],
