@@ -98,6 +98,7 @@ export class ExternalRoleService {
             Builder<ExternalRoleEntity>()
                 .description(input.description)
                 .name(input.name)
+                .recognitionKey(input.recognitionKey)
                 .externalServiceId(input.externalServiceId)
                 .default(input.default)
                 .build(),
