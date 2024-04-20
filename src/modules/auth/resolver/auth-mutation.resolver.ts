@@ -12,6 +12,7 @@ import { ERole } from '@modules/common/enum/role.enum'
 import { ExternalServiceSignUpInput } from '@modules/auth/input/external-service-sign-up.input'
 import { DefaultAttributes } from '@modules/graphql/attributes/default.attributes'
 import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
+import {ActiveGraphQLUser} from '@modules/common/decorator/active-grahql-user-decorator'
 
 @ObjectType('TAuthMutations')
 export class AuthMutations {
@@ -40,7 +41,7 @@ export class AuthMutationResolver {
     })
     async externalServiceSignUp(
         @Args('input') input: ExternalServiceSignUpInput,
-        @ActiveUser('id') userId: string,
+        @ActiveGraphQLUser('id') userId: string,
     ){
         return this.authService.externalServiceSignUp(input, userId)
     }

@@ -61,7 +61,7 @@ export class AuthService {
         const userExternalServicesExternalKeys = userEntityInstance.externalServices
             .map((item) => item.recognitionKey)
 
-        console.log(userExternalServicesExternalKeys, input, userEntityInstance)
+        console.log(userExternalServicesExternalKeys, input, userEntityInstance, userId)
 
         if (userExternalServicesExternalKeys.includes(input.recognitionKey)) {
             Builder(UniversalError)
