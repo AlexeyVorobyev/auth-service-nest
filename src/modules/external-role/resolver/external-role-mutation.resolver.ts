@@ -10,6 +10,7 @@ import { ExternalRoleAttributes } from '@modules/external-role/attributes/extern
 import { ExternalRoleCreateInput } from '@modules/external-role/input/external-role-create.input'
 import { ExternalRoleUpdateInput } from '@modules/external-role/input/external-role-update.input'
 import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 
 @ObjectType('TExternalRoleMutations')
@@ -51,7 +52,7 @@ export class ExternalRoleMutationResolver {
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
     @Roles(ERole.Admin, ERole.Moderator)
-    @ResolveField(() => String, {
+    @ResolveField(() => DeleteAttributes, {
         name: 'delete',
         description: 'Provides functionality of deleting external role by id.',
     })

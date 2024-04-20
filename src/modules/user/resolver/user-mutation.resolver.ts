@@ -12,6 +12,7 @@ import { RoleGraphQLGuard } from '@modules/common/guard/role-graphql.guard'
 import { ActiveGraphQLUser } from '@modules/common/decorator/active-grahql-user-decorator'
 import { UserUpdateMeInput } from '@modules/user/input/user-update-me.input'
 import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 
 @ObjectType('TUserMutations')
@@ -54,7 +55,7 @@ export class UserMutationResolver {
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
     @Roles(ERole.Admin, ERole.Moderator)
-    @ResolveField(() => String, {
+    @ResolveField(() => DeleteAttributes, {
         name: 'delete',
         description: 'Provides functionality of deleting user by id.',
     })
@@ -78,8 +79,7 @@ export class UserMutationResolver {
     }
 
     @UseGuards(JwtGraphQLAuthGuard)
-    @Roles(ERole.Admin, ERole.Moderator)
-    @ResolveField(() => String, {
+    @ResolveField(() => DeleteAttributes, {
         name: 'deleteMe',
         description: 'Provides functionality of deleting yourself',
     })

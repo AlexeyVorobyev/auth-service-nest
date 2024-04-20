@@ -10,6 +10,7 @@ import { ExternalServiceCreateInput } from '@modules/external-service/input/exte
 import { ExternalServiceUpdateInput } from '@modules/external-service/input/external-service-update.input'
 import { IdInput } from '@modules/graphql/input/id.input'
 import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 
 @ObjectType('TExternalServiceMutations')
@@ -51,7 +52,7 @@ export class ExternalServiceMutationResolver {
 
     @UseGuards(JwtGraphQLAuthGuard, RoleGraphQLGuard)
     @Roles(ERole.Admin, ERole.Moderator)
-    @ResolveField(() => String, {
+    @ResolveField(() => DeleteAttributes, {
         name: 'delete',
         description: 'Provides functionality of deleting external service by id.',
     })

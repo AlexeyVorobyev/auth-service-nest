@@ -22,6 +22,7 @@ import {
 } from '@modules/graphql/adapter/sort-input-list-to-find-options-order.adapter'
 import { ExternalServiceRepository } from '@modules/external-service/repository/external-service.repository'
 import { ExternalRoleRepository } from '@modules/external-role/repository/external-role.repository'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 
 @Injectable()
@@ -241,7 +242,7 @@ export class UserService {
     async delete(
         id: string,
         role: ERole,
-    ) {
+    ): Promise<DeleteAttributes> {
         const userToDelete = await this.userRepository.getOne({ id: id })
 
         const allowedUsersToDelete = this.checkPrivileges(role)
@@ -257,7 +258,9 @@ export class UserService {
         }
 
         await this.userRepository.delete({ id: id })
-        return id
+        return Builder<DeleteAttributes>()
+            .id(id)
+            .build()
     }
 
     async updateMe(id: string, input: UserUpdateMeInput): Promise<UserAttributes> {
@@ -272,9 +275,11 @@ export class UserService {
         return await this.getOne(id)
     }
 
-    async deleteMe(id: string): Promise<string> {
+    async deleteMe(id: string): Promise<DeleteAttributes> {
         await this.userRepository.delete({ id: id })
 
-        return id
+        return Builder<DeleteAttributes>()
+            .id(id)
+            .build()
     }
 }

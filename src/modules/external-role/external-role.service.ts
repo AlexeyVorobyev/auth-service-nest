@@ -16,6 +16,7 @@ import { Builder } from 'builder-pattern'
 import { ListMetaAttributes } from '@modules/graphql/attributes/list-meta.attributes'
 import { ExternalRoleCreateInput } from '@modules/external-role/input/external-role-create.input'
 import { ExternalRoleUpdatePayloadInput } from '@modules/external-role/input/external-role-update-payload.input'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 @Injectable()
 export class ExternalRoleService {
@@ -105,8 +106,11 @@ export class ExternalRoleService {
         return await this.getOne(id)
     }
 
-    async delete(id: string): Promise<string> {
+    async delete(id: string): Promise<DeleteAttributes> {
         await this.externalRoleRepository.delete({ id: id })
-        return id
+
+        return Builder<DeleteAttributes>()
+            .id(id)
+            .build()
     }
 }

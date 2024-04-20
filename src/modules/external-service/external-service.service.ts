@@ -18,6 +18,7 @@ import {
 import {
     ExternalServiceUpdatePayloadInput,
 } from '@modules/external-service/input/external-service-update-payload.input'
+import {DeleteAttributes} from '@modules/graphql/attributes/delete.attributes'
 
 @Injectable()
 export class ExternalServiceService {
@@ -105,8 +106,10 @@ export class ExternalServiceService {
         return await this.getOne(id)
     }
 
-    async delete(id: string): Promise<string> {
+    async delete(id: string): Promise<DeleteAttributes> {
         await this.externalServiceRepository.delete({ id: id })
-        return id
+        return Builder<DeleteAttributes>()
+            .id(id)
+            .build()
     }
 }
