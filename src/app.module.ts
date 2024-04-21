@@ -11,6 +11,7 @@ import { RootResolver } from '@src/app.resolver'
 import { ConfigModule } from '@modules/config/config.module'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation-meta.interceptor'
+import {StatModule} from '@modules/stat/stat.module'
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { OperationMetaInterceptor } from '@modules/graphql/interceptor/operation
         ExternalServiceModule,
         CommandModule,
         GraphqlModule,
+        StatModule
     ],
     providers: [
         RootResolver,

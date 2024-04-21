@@ -7,7 +7,7 @@ import { UUID } from '@modules/graphql/scalar/uuid.scalar'
 import validator from 'validator'
 
 @InputType()
-export abstract class ListInput {
+export class ListInput {
     @Min(0)
     @IsNumber()
     @IsOptional()

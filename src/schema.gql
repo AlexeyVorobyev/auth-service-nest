@@ -18,6 +18,17 @@ enum ESortDirection {
   descending
 }
 
+"""Aggregation criteria"""
+enum ETimeAggregation {
+  DAY
+  HOUR
+  MINUTE
+  MONTH
+  NO_AGG
+  WEEK
+  YEAR
+}
+
 type Mutation {
   auth: TAuthMutations!
   externalRole: TExternalRoleMutations!
@@ -29,6 +40,7 @@ type Query {
   auth: TAuthQueries!
   externalRole: TExternalRoleQueries!
   externalService: TExternalServiceQueries!
+  stat: TStatQueries!
   user: TUserQueries!
 }
 
@@ -62,6 +74,14 @@ input TDatePeriodInput {
 
   """Start date"""
   startDate: DateTime
+}
+
+type TDefaultAttributes {
+  """id of deleted entity"""
+  id: UUID!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 }
 
 type TExternalRoleAttributes {
@@ -198,7 +218,7 @@ type TExternalRoleMutations {
   create(input: TExternalRoleCreateInput!): TExternalRoleAttributes!
 
   """Provides functionality of deleting external role by id."""
-  delete(input: TIdInput!): String!
+  delete(input: TIdInput!): TDefaultAttributes!
 
   """Provides functionality of editing external role by id."""
   update(input: TExternalRoleUpdateInput!): TExternalRoleAttributes!
@@ -354,7 +374,7 @@ type TExternalServiceMutations {
   create(input: TExternalServiceCreateInput!): TExternalServiceAttributes!
 
   """Provides functionality of deleting external service by id."""
-  delete(input: TIdInput!): String!
+  delete(input: TIdInput!): TDefaultAttributes!
 
   """Provides functionality of editing external service by id."""
   update(input: TExternalServiceUpdateInput!): TExternalServiceAttributes!
@@ -449,6 +469,30 @@ input TSortInput {
 
   """Sort direction"""
   direction: ESortDirection
+}
+
+type TStatQueries {
+  """Provides functionality of getting stat of users registration"""
+  userRegistrationHistoryList(input: TStatUserRegistrationHistoryInput!): TUserRegistrationHistoryListAttributes!
+
+  """Provides functionality of getting stat of users registration"""
+  userTotalAmount: TUserTotalAmountAttributes!
+}
+
+input TStatUserRegistrationHistoryInput {
+  """Datetime period criteria"""
+  datePeriod: TDatePeriodInput!
+
+  """Aggregation criteria"""
+  timeAggregation: ETimeAggregation = NO_AGG
+}
+
+type TStatValueAttributes {
+  """Date of current value"""
+  time: DateTime!
+
+  """Value"""
+  value: Float!
 }
 
 type TTokenDataAttributes {
@@ -592,10 +636,10 @@ type TUserMutations {
   create(input: TUserCreateInput!): TUserAttributes!
 
   """Provides functionality of deleting user by id."""
-  delete(input: TIdInput!): String!
+  delete(input: TIdInput!): TDefaultAttributes!
 
   """Provides functionality of deleting yourself"""
-  deleteMe: String!
+  deleteMe: TDefaultAttributes!
 
   """Provides functionality of editing user by id."""
   update(input: TUserUpdateInput!): TUserAttributes!
@@ -613,6 +657,22 @@ type TUserQueries {
 
   """Provides user information."""
   recordMe: TUserAttributes!
+}
+
+type TUserRegistrationHistoryListAttributes {
+  """stat data"""
+  data: [TStatValueAttributes!]!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
+}
+
+type TUserTotalAmountAttributes {
+  """stat data"""
+  data: Float!
+
+  """Status metadata"""
+  operationMeta: TOperationMetaAttributes!
 }
 
 input TUserUpdateInput {

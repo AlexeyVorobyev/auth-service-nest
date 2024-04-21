@@ -7,6 +7,7 @@ import { ExternalRoleQueries } from '@modules/external-role/resolver/external-ro
 import { ExternalRoleMutations } from '@modules/external-role/resolver/external-role-mutation.resolver'
 import { AuthMutations } from '@modules/auth/resolver/auth-mutation.resolver'
 import { AuthQueries } from '@modules/auth/resolver/auth-query.resolver'
+import {StatQueries} from '@modules/stat/resolver/stat-query.resolver'
 
 @Resolver('root')
 export class RootResolver {
@@ -48,5 +49,10 @@ export class RootResolver {
     @Query(() => AuthQueries, { name: 'auth' })
     authQueries() {
         return new AuthQueries()
+    }
+
+    @Query(() => StatQueries, { name: 'stat' })
+    statQueries() {
+        return new StatQueries()
     }
 }
