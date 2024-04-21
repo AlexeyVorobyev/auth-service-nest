@@ -479,6 +479,23 @@ type TStatQueries {
   userTotalAmount: TUserTotalAmountAttributes!
 }
 
+type TStatSummaryAttributes {
+  """last"""
+  last: Float
+
+  """max"""
+  max: Float
+
+  """mean"""
+  mean: Float
+
+  """min"""
+  min: Float
+
+  """sum"""
+  sum: Float
+}
+
 input TStatUserRegistrationHistoryInput {
   """Datetime period criteria"""
   datePeriod: TDatePeriodInput!
@@ -665,6 +682,9 @@ type TUserRegistrationHistoryListAttributes {
 
   """Status metadata"""
   operationMeta: TOperationMetaAttributes!
+
+  """stat summary"""
+  summary: TStatSummaryAttributes!
 }
 
 type TUserTotalAmountAttributes {

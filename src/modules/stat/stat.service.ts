@@ -3,12 +3,12 @@ import {StatUserRegistrationHistoryInput} from '@modules/stat/input/stat-user-re
 import {UserRepository} from '@modules/user/repository/user.repository'
 import {Between, FindOptionsWhere} from 'typeorm'
 import {UserEntity} from '@modules/user/entity/user.entity'
-import {StatValueAttributes} from '@modules/stat/attributes/stat-value.attributes'
 import {ETimeAggregation} from '@modules/stat/enum/time-aggregation.enum'
 import {TStatValue} from '@modules/stat/type/stat-value.type'
 import {Builder} from 'builder-pattern'
 import {UserRegistrationHistoryListAttributes} from '@modules/stat/attributes/user-registration-history-list.attributes'
 import {UserTotalAmountAttributes} from '@modules/stat/attributes/user-total-amount.attributes'
+import {StatSummaryAttributes} from '@modules/stat/attributes/stat-summary.attributes'
 
 @Injectable()
 export class StatService {
@@ -38,6 +38,17 @@ export class StatService {
         if (input.timeAggregation === ETimeAggregation.NO_AGG) {
             return Builder<UserRegistrationHistoryListAttributes>()
                 .data(statValues)
+                .summary(
+                    Builder<StatSummaryAttributes>()
+                        .min(Math.min(...statValues.map((item) => item.value)))
+                        .max(Math.max(...statValues.map((item) => item.value)))
+                        .sum(statValues.map((item) => item.value)
+                            .reduce((acc, item) => acc + item))
+                        .mean(statValues.map((item) => item.value)
+                            .reduce((acc, item) => acc + item)/statValues.length)
+                        .last(statValues[statValues.length - 1].value)
+                    .build()
+                )
                 .build()
         }
 
@@ -49,6 +60,17 @@ export class StatService {
                     input.datePeriod.startDate,
                     input.datePeriod.endDate
                 )
+            )
+            .summary(
+                Builder<StatSummaryAttributes>()
+                    .min(Math.min(...statValues.map((item) => item.value)))
+                    .max(Math.max(...statValues.map((item) => item.value)))
+                    .sum(statValues.map((item) => item.value)
+                        .reduce((acc, item) => acc + item))
+                    .mean(statValues.map((item) => item.value)
+                        .reduce((acc, item) => acc + item)/statValues.length)
+                    .last(statValues[statValues.length - 1].value)
+                    .build()
             )
             .build()
     }
