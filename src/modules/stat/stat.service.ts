@@ -52,24 +52,24 @@ export class StatService {
                 .build()
         }
 
+        const newValues = this.aggregateByTime(
+            statValues,
+            input.timeAggregation,
+            input.datePeriod.startDate,
+            input.datePeriod.endDate
+        )
+
         return Builder<UserRegistrationHistoryListAttributes>()
-            .data(
-                this.aggregateByTime(
-                    statValues,
-                    input.timeAggregation,
-                    input.datePeriod.startDate,
-                    input.datePeriod.endDate
-                )
-            )
+            .data(newValues)
             .summary(
                 Builder<StatSummaryAttributes>()
-                    .min(Math.min(...statValues.map((item) => item.value)))
-                    .max(Math.max(...statValues.map((item) => item.value)))
-                    .sum(statValues.map((item) => item.value)
+                    .min(Math.min(...newValues.map((item) => item.value)))
+                    .max(Math.max(...newValues.map((item) => item.value)))
+                    .sum(newValues.map((item) => item.value)
                         .reduce((acc, item) => acc + item))
-                    .mean(statValues.map((item) => item.value)
-                        .reduce((acc, item) => acc + item)/statValues.length)
-                    .last(statValues[statValues.length - 1].value)
+                    .mean(newValues.map((item) => item.value)
+                        .reduce((acc, item) => acc + item)/newValues.length)
+                    .last(newValues[newValues.length - 1].value)
                     .build()
             )
             .build()
